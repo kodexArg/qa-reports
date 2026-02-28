@@ -1,0 +1,4 @@
+# Only track HTML files
+*
+!*.html
+!.gitignore

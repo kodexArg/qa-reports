@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Report — RRHH AMA — 2026-02-27</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* TOKENS */
+:root {
+  --white: #ffffff;
+  --paper: #fafaf8;
+  --ink: #1a1a1a;
+  --ink-light: #555;
+  --ink-faint: #999;
+  --ink-ghost: #ccc;
+  --rule: #e8e6e1;
+  --rule-dark: #d0cdc6;
+
+  --critical: #c0392b;
+  --critical-surface: #fdf0ef;
+  --high: #d35400;
+  --high-surface: #fef5ec;
+  --medium: #b7950b;
+  --medium-surface: #fefcf0;
+  --low: #27ae60;
+  --low-surface: #f0faf4;
+  --pass: #2e86ab;
+  --pass-surface: #eef6fa;
+
+  --font: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'DM Mono', 'JetBrains Mono', monospace;
+
+  --measure: 72rem;
+  --gap: clamp(1rem, 3vw, 2rem);
+}
+
+/* RESET & BASE */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--ink); color: var(--white); }
+
+a { color: var(--ink); text-underline-offset: 3px; }
+a:hover { color: var(--ink-light); }
+
+/* LAYOUT */
+.page {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+/* HEADER */
+.report-header {
+  padding: 4rem 0 3rem;
+  border-bottom: 2px solid var(--ink);
+}
+
+.report-header .eyebrow {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1.5rem;
+}
+
+.report-header h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.report-header .subtitle {
+  font-size: 1.15rem;
+  font-weight: 300;
+  color: var(--ink-light);
+  max-width: 40ch;
+}
+
+.report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem 3rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.85rem;
+}
+
+.report-meta div {
+  min-width: 160px;
+}
+
+.report-meta dt {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.35rem;
+}
+
+.report-meta dd {
+  color: var(--ink-light);
+}
+
+.report-meta dd a { color: var(--ink-light); }
+
+/* SCORES */
+.scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 3rem 0;
+}
+
+.score-cell {
+  background: var(--white);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+
+.score-cell .number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.score-cell .label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.4rem;
+}
+
+.score-cell .bar {
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 0.75rem;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.score-cell .bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* SEVERITY SUMMARY */
+.severity-strip {
+  display: flex;
+  gap: 0;
+  margin: 0 0 3rem;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.severity-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin: -2rem 0 3rem;
+  font-size: 0.78rem;
+  color: var(--ink-light);
+}
+
+.severity-legend span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.severity-legend .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* SECTION */
+.audit-section {
+  padding: 3rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.audit-section:first-of-type { border-top: 2px solid var(--ink); }
+
+.section-title {
+  font-size: 0.68rem;
+  font-family: var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.35rem;
+}
+
+.section-heading {
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+
+/* FINDINGS */
+.finding {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--rule);
+  background: var(--white);
+}
+
+.finding[data-severity="critical"] { border-left-color: var(--critical); background: var(--critical-surface); }
+.finding[data-severity="high"] { border-left-color: var(--high); background: var(--high-surface); }
+.finding[data-severity="medium"] { border-left-color: var(--medium); background: var(--medium-surface); }
+.finding[data-severity="low"] { border-left-color: var(--low); background: var(--low-surface); }
+
+.finding-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.finding-id {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+
+.finding-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.finding-location {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.badge-critical { background: var(--critical); color: var(--white); }
+.badge-high { background: var(--high); color: var(--white); }
+.badge-medium { background: var(--medium); color: var(--white); }
+.badge-low { background: var(--low); color: var(--white); }
+.badge-pass { background: var(--pass); color: var(--white); }
+
+.finding-body {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+}
+
+.finding-body p { margin-bottom: 0.6rem; }
+.finding-body p:last-child { margin-bottom: 0; }
+.finding-body strong { color: var(--ink); font-weight: 600; }
+
+.finding-body ul, .finding-body ol {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.finding-body li { margin-bottom: 0.25rem; }
+
+/* CODE */
+pre {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  background: var(--paper);
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+
+/* TABLES */
+.table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--ink);
+  white-space: nowrap;
+}
+
+td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+/* STRENGTHS */
+.strengths-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.strength {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.strength::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.85rem;
+  width: 8px;
+  height: 2px;
+  background: var(--pass);
+}
+
+/* PERFORMANCE METRICS */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 1.5rem 0;
+}
+
+.metric {
+  background: var(--white);
+  padding: 1rem;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.metric-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.15rem;
+}
+
+.metric-note {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  margin-top: 0.25rem;
+}
+
+/* ACTION PLAN */
+.action-tier {
+  margin-bottom: 2rem;
+}
+
+.action-tier-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-tier ol {
+  list-style: none;
+  counter-reset: action;
+  padding: 0;
+}
+
+.action-tier li {
+  counter-increment: action;
+  padding: 0.5rem 0 0.5rem 2.5rem;
+  position: relative;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.action-tier li:last-child { border-bottom: none; }
+
+.action-tier li::before {
+  content: counter(action, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  position: absolute;
+  left: 0;
+  top: 0.6rem;
+}
+
+/* EXECUTIVE SUMMARY */
+.exec-summary {
+  font-size: 0.92rem;
+  color: var(--ink-light);
+  line-height: 1.8;
+  margin: 2rem 0;
+  max-width: 65ch;
+}
+
+.exec-summary p { margin-bottom: 1rem; }
+
+/* FOOTER */
+.report-footer {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.report-footer a { color: var(--ink-faint); }
+
+/* SEPARATOR */
+.spacer { height: 2rem; }
+.spacer-lg { height: 4rem; }
+
+/* PRINT */
+@media print {
+  body { background: white; }
+  .page { max-width: none; padding: 0; }
+  .finding { break-inside: avoid; }
+  .audit-section { break-before: auto; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<header class="report-header">
+  <p class="eyebrow">Quality Assurance Report &mdash; Full Audit v2</p>
+  <h1>RRHH AMA</h1>
+  <p class="subtitle">HR Management System for Anesthesiology Residency Program, AMA Mendoza</p>
+
+  <dl class="report-meta">
+    <div><dt>Date</dt>
+    <dd>2026-02-27</dd></div>
+    <div><dt>Target</dt>
+    <dd><a href="https://rrhh-puce.vercel.app/">https://rrhh-puce.vercel.app/</a></dd></div>
+    <div><dt>Repository</dt>
+    <dd><a href="https://github.com/luinloder/RRHH">https://github.com/luinloder/RRHH</a></dd></div>
+    <div><dt>Auditor</dt>
+    <dd>Gabriel Cavedal</dd></div>
+    <div><dt>Scope</dt>
+    <dd>Security, Accessibility, Performance, SEO, Code Quality, Functionality</dd></div>
+    <div><dt>Stack</dt>
+    <dd>Astro 5 (SSR) + Alpine.js + Supabase + TailwindCSS 3 + Vercel</dd></div>
+  </dl>
+</header>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="exec-summary">
+  <p>This is the <strong>second full audit</strong> of RRHH AMA, an internal HR management system for the Anesthesiology Residency Program at AMA Mendoza. The application is built with Astro 5 (SSR mode), Alpine.js, Supabase, and deployed on Vercel.</p>
+  <p>Since the first audit, the <strong>critical hardcoded Supabase service role key has been fully resolved</strong> &mdash; all keys now use environment variables and <code>.gitignore</code> correctly excludes <code>.env</code> files. This was the most urgent finding from the previous report.</p>
+  <p>However, this audit uncovered <strong>1 critical</strong>, <strong>12 high</strong>, <strong>16 medium</strong>, and <strong>16 low</strong> severity findings across all domains. The most urgent issue is <strong>CSRF protection being deliberately disabled</strong> in the Astro config, leaving all 25+ POST endpoints vulnerable to cross-site request forgery.</p>
+</div>
+
+<!-- SCORES -->
+<div class="scores">
+  <div class="score-cell">
+    <div class="number" style="color: var(--high)">4</div>
+    <div class="label">Security</div>
+    <div class="bar"><div class="bar-fill" style="width: 40%; background: var(--high)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--high)">4</div>
+    <div class="label">Accessibility</div>
+    <div class="bar"><div class="bar-fill" style="width: 40%; background: var(--high)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">7</div>
+    <div class="label">Performance</div>
+    <div class="bar"><div class="bar-fill" style="width: 70%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--medium)">5</div>
+    <div class="label">SEO</div>
+    <div class="bar"><div class="bar-fill" style="width: 50%; background: var(--medium)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--medium)">6</div>
+    <div class="label">Code Quality</div>
+    <div class="bar"><div class="bar-fill" style="width: 60%; background: var(--medium)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">7</div>
+    <div class="label">Functionality</div>
+    <div class="bar"><div class="bar-fill" style="width: 70%; background: var(--pass)"></div></div>
+  </div>
+</div>
+
+<!-- Severity distribution bar -->
+<div class="severity-strip">
+  <div style="flex: 1; background: var(--critical)"></div>
+  <div style="flex: 12; background: var(--high)"></div>
+  <div style="flex: 16; background: var(--medium)"></div>
+  <div style="flex: 16; background: var(--low)"></div>
+</div>
+<div class="severity-legend">
+  <span><span class="dot" style="background: var(--critical)"></span> 1 Critical</span>
+  <span><span class="dot" style="background: var(--high)"></span> 12 High</span>
+  <span><span class="dot" style="background: var(--medium)"></span> 16 Medium</span>
+  <span><span class="dot" style="background: var(--low)"></span> 16 Low</span>
+  <span style="color: var(--ink-faint); margin-left: auto">45 findings</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: SECURITY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">01 / 06</p>
+  <h2 class="section-heading">Security</h2>
+
+  <div class="finding" data-severity="critical">
+    <div class="finding-head">
+      <span class="finding-id">S-01</span>
+      <span class="badge badge-critical">Critical</span>
+      <span class="finding-name">CSRF Protection Deliberately Disabled</span>
+      <span class="finding-location">astro.config.mjs:11</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> All 25+ state-changing POST endpoints are vulnerable to Cross-Site Request Forgery. An attacker can craft a malicious page that submits forms to create/delete users, modify records, or perform admin operations on behalf of an authenticated user.</p>
+      <pre>security: {
+  checkOrigin: false, // Astro's built-in CSRF protection is OFF
+},</pre>
+      <p>No CSRF tokens are used anywhere in the codebase (zero results for "csrf" across all files). All forms use plain POST without origin validation.</p>
+      <p><strong>Remediation:</strong></p>
+      <ul>
+        <li>Set <code>checkOrigin: true</code> in astro.config.mjs (1-line fix)</li>
+        <li>This validates the Origin header on all POST/PUT/DELETE requests</li>
+        <li>Handle exceptions individually for webhooks if needed</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">S-02</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Missing Content-Security-Policy Header</span>
+      <span class="finding-location">HTTP Response Headers</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> No CSP means zero defense-in-depth against XSS. The app uses inline scripts extensively (Alpine.js, Chart.js), broadening the attack surface.</p>
+      <p><strong>Remediation:</strong> Add via vercel.json or middleware. Start with: <code>default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co</code></p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">S-03</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Open Redirect in Auth Callback</span>
+      <span class="finding-location">src/pages/auth/callback.astro:16</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> The <code>redirectTo</code> parameter is used in <code>Astro.redirect()</code> without validation. An attacker can craft <code>/auth/callback?code=X&amp;redirectTo=https://evil.com</code> to redirect users to phishing sites post-authentication.</p>
+      <pre>return Astro.redirect(Astro.url.searchParams.get('redirectTo') || '/');</pre>
+      <p><strong>Remediation:</strong> Validate that redirectTo starts with <code>/</code> and does not start with <code>//</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">S-04</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Supabase Project Ref &amp; Pooler URL in Git-Trackable Files</span>
+      <span class="finding-location">supabase/.temp/project-ref, pooler-url</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> The <code>supabase/.temp/</code> directory contains the project reference ID and full database pooler connection string. The <code>.gitignore</code> does NOT exclude this directory.</p>
+      <pre>project-ref: fganbmycldqjdzbfvist
+pooler-url: postgresql://postgres.fganbmycldqjdzbfvist@aws-0-us-west-2.pooler.supabase.com:5432/postgres</pre>
+      <p><strong>Remediation:</strong> Add <code>supabase/.temp/</code> to .gitignore. Run <code>git rm --cached -r supabase/.temp/</code> if committed.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">S-05</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Multiple High-Severity Dependency Vulnerabilities</span>
+      <span class="finding-location">package.json</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> npm audit reports 5 HIGH severity vulnerabilities including path traversal in Rollup 4, ReDoS in path-to-regexp/minimatch, and prototype pollution + ReDoS in xlsx (SheetJS).</p>
+      <p><strong>Remediation:</strong> Update dependencies. Remove unused <code>xlsx</code> package. Run <code>npm update</code> for transitive dependency patches.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">S-06</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Missing Security Headers (X-Frame-Options, X-Content-Type-Options, Referrer-Policy)</span>
+      <span class="finding-location">HTTP Response Headers</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> App can be embedded in iframes (clickjacking), browsers may MIME-sniff responses, and sensitive URL parameters may leak to external sites.</p>
+      <p><strong>Remediation:</strong> Add via <code>vercel.json</code>: X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy: strict-origin-when-cross-origin, Permissions-Policy.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">S-07</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">innerHTML Usage with User Data (Potential DOM XSS)</span>
+      <span class="finding-location">src/pages/admin/usuarios.astro:358,367</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> User data (nombre, email) is inserted via <code>innerHTML</code> without sanitization. If user names contain HTML/script tags, they execute.</p>
+      <pre>info.innerHTML = '&lt;strong&gt;' + data.nombre + '&lt;/strong&gt; (' + data.email + ')';</pre>
+      <p><strong>Remediation:</strong> Use <code>textContent</code> instead of <code>innerHTML</code> for user-supplied data.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">S-08</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Email Enumeration via Public check-email Endpoint</span>
+      <span class="finding-location">src/pages/api/auth/check-email.ts</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> <code>/api/auth/check-email</code> is public and returns <code>{ exists: true/false }</code> for any email. Rate limited (10/min) but scriptable across IPs.</p>
+      <p><strong>Remediation:</strong> Always return the same response regardless of email existence, or require CAPTCHA.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">S-09</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Pervasive supabaseAdmin (service_role) Usage Without RLS Write Policies</span>
+      <span class="finding-location">src/lib/supabase.ts:17 (67+ imports)</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Nearly every endpoint uses supabaseAdmin which bypasses RLS entirely. Combined with CSRF (S-01), an attacker could read/modify all data. RLS policies exist but are SELECT-only.</p>
+      <p><strong>Remediation:</strong> Use SSR cookie-based client for authenticated operations. Reserve supabaseAdmin for privileged ops. Add RLS write policies.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">S-10</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Weak Password Policy</span>
+      <span class="finding-location">supabase/config.toml:175-178</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Minimum password length is 6 with no complexity requirements.</p>
+      <pre>minimum_password_length = 6
+password_requirements = ""</pre>
+      <p><strong>Remediation:</strong> Set <code>minimum_password_length = 12</code> and <code>password_requirements = "lower_upper_letters_digits"</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">S-11</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Rate Limiter Resets on Serverless Cold Starts</span>
+      <span class="finding-location">src/lib/rate-limit.ts:10</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Use Vercel KV or Upstash Redis for persistent rate limiting. Current implementation is acceptable as defense-in-depth.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">S-12</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No robots.txt or security.txt</span>
+      <span class="finding-location">/robots.txt, /.well-known/security.txt (404)</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add <code>public/robots.txt</code> with <code>Disallow: /</code>. Add <code>public/.well-known/security.txt</code>.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Hardcoded Supabase keys fully resolved (previous critical finding fixed)</div>
+    <div class="strength">Strong Zod input validation on every API endpoint prevents injection</div>
+    <div class="strength">Comprehensive RBAC middleware with 9 distinct access control blocks</div>
+    <div class="strength">HTTPS enforced with 308 redirect; HSTS present with preload</div>
+    <div class="strength">No sensitive paths exposed (.env, .git, package.json all 404)</div>
+    <div class="strength">CORS restrictive by default (no Access-Control-Allow-Origin)</div>
+    <div class="strength">Audit logging on all writes with PII redaction</div>
+    <div class="strength">Cookie security on impersonation (httpOnly, secure, sameSite, 4h expiry)</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: ACCESSIBILITY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">02 / 06</p>
+  <h2 class="section-heading">Accessibility</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-01</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Email Input on Login Page Has No Accessible Label</span>
+      <span class="finding-location">src/pages/auth/login.astro:266-272</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Screen reader users cannot identify the purpose of the email input field &mdash; the primary entry point for the application.</p>
+      <pre>&lt;input type="email" id="email-input" placeholder="tu@email.com" /&gt;
+&lt;!-- No label, no aria-label, no aria-labelledby --&gt;</pre>
+      <p><strong>Remediation:</strong> Add <code>&lt;label for="email-input"&gt;</code> or <code>aria-label="Correo electr&oacute;nico"</code>.</p>
+      <p><strong>WCAG:</strong> 1.3.1, 4.1.2, 3.3.2</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-02</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No aria-live Regions for Dynamic Error/Success Messages</span>
+      <span class="finding-location">Entire codebase (0 matches)</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Screen reader users are never notified when error or success messages appear. Zero <code>aria-live</code>, <code>role="alert"</code>, or <code>role="status"</code> anywhere in the codebase.</p>
+      <p><strong>Remediation:</strong> Add <code>role="alert"</code> to error containers. Add <code>aria-live="polite"</code> for success messages.</p>
+      <p><strong>WCAG:</strong> 4.1.3</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-03</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">26+ Tables Have No Accessible Name</span>
+      <span class="finding-location">Multiple admin/page files</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Screen reader users cannot distinguish between tables. Only DataTable component has <code>aria-label</code>; raw tables in 15+ pages do not.</p>
+      <p><strong>Remediation:</strong> Add <code>&lt;caption&gt;</code> or <code>aria-label</code> to every table.</p>
+      <p><strong>WCAG:</strong> 1.3.1</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-04</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Login Page Tab Pattern Lacks ARIA Attributes</span>
+      <span class="finding-location">src/pages/auth/login.astro:245-248</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Screen readers cannot understand the Google/Email tabbed interface. Active state communicated only via CSS class.</p>
+      <p><strong>Remediation:</strong> Implement WAI-ARIA tabs pattern: <code>role="tablist"</code>, <code>role="tab"</code>, <code>aria-selected</code>, <code>aria-controls</code>, <code>role="tabpanel"</code>.</p>
+      <p><strong>WCAG:</strong> 4.1.2, 1.3.1</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-05</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Focus Indicators Removed (outline:none) Without Adequate Replacement</span>
+      <span class="finding-location">15+ component files</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Keyboard-only users cannot see which element is focused. Component styles override globals.css with <code>outline:none</code> and provide only 0.1-opacity box-shadow (~1.5:1 contrast, needs 3:1).</p>
+      <p><strong>Remediation:</strong> Remove <code>outline:none</code> overrides or increase box-shadow opacity to 0.4+.</p>
+      <p><strong>WCAG:</strong> 2.4.7, 2.4.11</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-06</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Text with CSS Opacity Falls Below 4.5:1 Contrast Ratio</span>
+      <span class="finding-location">login.astro, BaseLayout.astro</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Low-vision users cannot read text below WCAG AA thresholds. <code>.login-note</code> opacity 0.7 = 3.35:1 (FAIL). <code>.nav-label</code> opacity 0.6 = 2.83:1 (FAIL). <code>.sidebar-footer</code> opacity 0.5 = 2.36:1 (FAIL).</p>
+      <p><strong>Remediation:</strong> Remove opacity or use a dedicated lighter color that meets 4.5:1.</p>
+      <p><strong>WCAG:</strong> 1.4.3</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-07</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Modal Dialog Lacks Focus Trap</span>
+      <span class="finding-location">src/components/shared/Modal.astro</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Keyboard users can Tab out of modal into background content.</p>
+      <p><strong>Remediation:</strong> Implement focus trap or use native <code>&lt;dialog&gt;</code> element.</p>
+      <p><strong>WCAG:</strong> 2.4.3</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-08</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">SVG Icons Lack aria-hidden or Accessible Text</span>
+      <span class="finding-location">BaseLayout.astro, login buttons</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add <code>aria-hidden="true"</code> to decorative SVGs. Add <code>&lt;title&gt;</code> for functional SVGs.</p>
+      <p><strong>WCAG:</strong> 1.1.1</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-09</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">User Menu Dropdown Has No aria-expanded/aria-haspopup</span>
+      <span class="finding-location">src/components/layout/UserMenu.astro:28</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add <code>:aria-expanded="open"</code> and <code>aria-haspopup="true"</code>.</p>
+      <p><strong>WCAG:</strong> 4.1.2</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-10</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">View-As-Role Select Lacks Accessible Label</span>
+      <span class="finding-location">src/components/layout/ViewAsRoleBanner.astro:64</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add <code>aria-label="Ver como rol"</code>.</p>
+      <p><strong>WCAG:</strong> 4.1.2, 1.3.1</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-11</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Auto-Submitting Select Elements Disorienting for Keyboard Users</span>
+      <span class="finding-location">20+ select elements across pages</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Keyboard users selecting options with arrow keys trigger unexpected form submissions and page reloads.</p>
+      <p><strong>Remediation:</strong> Add a "Filtrar" submit button alongside selects, or debounce submission.</p>
+      <p><strong>WCAG:</strong> 3.2.2</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-12</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Heading Hierarchy Issue (h2 Before h1 in DOM)</span>
+      <span class="finding-location">src/components/layout/BaseLayout.astro:79</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Change sidebar logo from <code>&lt;h2&gt;</code> to <code>&lt;p&gt;</code> or <code>&lt;span&gt;</code>.</p>
+      <p><strong>WCAG:</strong> 1.3.1</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A-13</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Login SVG Logo Lacks aria-hidden</span>
+      <span class="finding-location">src/pages/auth/login.astro:224</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add <code>aria-hidden="true"</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A-14</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">HTML lang="es" Could Be More Specific (es-AR)</span>
+      <span class="finding-location">login.astro:17</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Change to <code>lang="es-AR"</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A-15</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Modal Missing aria-labelledby</span>
+      <span class="finding-location">src/components/shared/Modal.astro:38</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add id to h2 title and <code>aria-labelledby</code> to dialog.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A-16</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Spinner Lacks prefers-reduced-motion</span>
+      <span class="finding-location">src/pages/auth/login.astro:203</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add <code>@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }</code></p>
+    </div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Skip navigation link in BaseLayout</div>
+    <div class="strength">Global :focus-visible rule (2px solid outline when not overridden)</div>
+    <div class="strength">Semantic landmarks: aside, main, header, nav with aria-label</div>
+    <div class="strength">AdminFormField correctly associates labels via for/id</div>
+    <div class="strength">Modal has role="dialog", aria-modal, close with aria-label="Cerrar"</div>
+    <div class="strength">Base color palette passes WCAG AA without opacity</div>
+    <div class="strength">UserMenu avatar has descriptive alt text</div>
+    <div class="strength">Collapsible panel uses tabindex, :aria-expanded, role="button"</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: PERFORMANCE
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">03 / 06</p>
+  <h2 class="section-heading">Performance</h2>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">81 ms</div>
+      <div class="metric-label">TTFB</div>
+      <div class="metric-note">&lt; 800 ms</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">122 ms</div>
+      <div class="metric-label">Response Time</div>
+      <div class="metric-note">&lt; 1000 ms</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">~1.5s</div>
+      <div class="metric-label">LCP (est.)</div>
+      <div class="metric-note">&lt; 2.5s</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">~50ms</div>
+      <div class="metric-label">INP (est.)</div>
+      <div class="metric-note">&lt; 200ms</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">~0.02</div>
+      <div class="metric-label">CLS (est.)</div>
+      <div class="metric-note">&lt; 0.1</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">~221 KB</div>
+      <div class="metric-label">Page Weight (gz)</div>
+      <div class="metric-note">&lt; 500 KB</div>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">P-01</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Excessive Google Fonts (3 Families, 28 Files, ~378 KB)</span>
+      <span class="finding-location">src/components/layout/BaseLayout.astro:47</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Loading DM Serif Display, DM Sans (7 weights + italic), JetBrains Mono downloads ~378 KB across 28 WOFF2 files with unused subsets (cyrillic, greek, vietnamese).</p>
+      <p><strong>Remediation:</strong> Self-host with <code>@fontsource</code> using Latin-only subsets (~378 KB &rarr; ~60 KB).</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">P-02</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Sequential Supabase Query Waterfalls</span>
+      <span class="finding-location">src/middleware.ts:56-73, 4 page files</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Every authenticated page runs 2-3 sequential middleware queries. Pages like informes/[id].astro add 3 more. Adds 100-300ms per load.</p>
+      <p><strong>Remediation:</strong> Wrap parallel-safe queries with <code>Promise.all()</code>. Consider Supabase RPC for middleware.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">P-03</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Dead Dependency: xlsx (SheetJS) ~1.2 MB</span>
+      <span class="finding-location">package.json:27</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Not imported anywhere. Adds ~1.2 MB and has known CVEs.</p>
+      <p><strong>Remediation:</strong> <code>npm uninstall xlsx</code> &mdash; zero risk.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">P-04</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Inline Styles 219 KB (55 Components)</span>
+      <span class="finding-location">Multiple .astro files</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Convert repeated patterns to Tailwind utilities. Extract shared styles into <code>globals.css @layer components</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">P-05</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Full SSR Without Hybrid Optimization</span>
+      <span class="finding-location">astro.config.mjs:8</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Switch to <code>output: 'hybrid'</code>. Add <code>export const prerender = true</code> to static pages. Add <code>prefetch: { defaultStrategy: 'hover' }</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">P-06</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No vercel.json for Static Asset Caching</span>
+      <span class="finding-location">Project root</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Create <code>vercel.json</code> with immutable cache headers for <code>/_astro/*</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">P-07</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">23 Inline SVGs in Navigation (~5 KB)</span>
+      <span class="finding-location">BaseLayout.astro:72-207</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Use SVG sprite sheet or <code>astro-icon</code>. Low priority.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Chart.js dynamically imported via lazy singleton pattern</div>
+    <div class="strength">Astro islands: zero JS by default, only Alpine.js (~15 KB) on client</div>
+    <div class="strength">No content images &mdash; inline SVG and CSS-only visuals</div>
+    <div class="strength">Dashboard uses Promise.all for 3 concurrent Supabase queries</div>
+    <div class="strength">Fire-and-forget heartbeat doesn't block response</div>
+    <div class="strength">font-display: swap prevents font-blocking render</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: SEO
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">04 / 06</p>
+  <h2 class="section-heading">SEO</h2>
+
+  <p style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 1.5rem;"><em>Internal HR application &mdash; SEO is low priority, but best practices still apply for link sharing and preventing accidental indexing.</em></p>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">SEO-01</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Inconsistent Favicon References &amp; Broken Icon Paths</span>
+      <span class="finding-location">BaseLayout.astro:39-43 vs login.astro:21-23</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Login references non-existent <code>favicon.png</code>. Web manifest references non-existent <code>android-icon-192x192.png</code>. Different favicon sets between layouts.</p>
+      <p><strong>Remediation:</strong> Align both to same set. Fix manifest icon path. Extract into shared partial.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">SEO-02</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Missing Open Graph and Twitter Card Tags</span>
+      <span class="finding-location">BaseLayout.astro, login.astro</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add og:title, og:description, og:image, twitter:card to BaseLayout and login.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">SEO-03</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Missing Meta Description on Login Page</span>
+      <span class="finding-location">src/pages/auth/login.astro</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add <code>&lt;meta name="description"&gt;</code> to login.astro (bypasses BaseLayout).</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">SEO-04</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No Canonical URL Defined</span>
+      <span class="finding-location">BaseLayout.astro</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add <code>&lt;link rel="canonical" href={Astro.url.href} /&gt;</code>.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">lang="es" correctly set on all pages</div>
+    <div class="strength">Dynamic title pattern: {title} | RRHH AMA</div>
+    <div class="strength">Default meta description in BaseLayout</div>
+    <div class="strength">Viewport meta correctly configured</div>
+    <div class="strength">Web manifest with app name and standalone display</div>
+    <div class="strength">Proper 404 page with back link</div>
+    <div class="strength">Clean file-based URL structure</div>
+    <div class="strength">Preconnect hints for Google Fonts</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: CODE QUALITY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">05 / 06</p>
+  <h2 class="section-heading">Code Quality</h2>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Comprehensive Zod validation with reusable schema primitives</div>
+    <div class="strength">PII redaction in audit logs (stripPII for dni, celular, email)</div>
+    <div class="strength">Clean Supabase client separation: browser, SSR cookie, admin</div>
+    <div class="strength">Strict TypeScript extending astro/tsconfigs/strict</div>
+    <div class="strength">Role impersonation with guardrails (rolReal for auth, 4h expiry)</div>
+    <div class="strength">GDPR-style data export endpoint</div>
+    <div class="strength">Ownership validation on CPO operations</div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">C-01</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Astro Actions Lack Authentication/Authorization Checks</span>
+      <span class="finding-location">src/actions/cpo/cobertura.ts:15-201</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Three Astro Actions (registrar/editar/eliminarCobertura) write via supabaseAdmin without checking auth or ownership. Unlike equivalent API routes that verify <code>profesional_cpo_id</code>, these skip all checks.</p>
+      <p><strong>Remediation:</strong> Use <code>getActionContext()</code> to access <code>context.locals.usuario</code>. Add ownership checks.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">C-02</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">listUsers() Fetches ALL Auth Users on Every User Creation</span>
+      <span class="finding-location">src/pages/api/admin/usuarios/crear.ts:64</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> O(n) memory and compute. Will timeout at scale on serverless.</p>
+      <pre>const { data: { users: authMatches } } = await supabase.auth.admin.listUsers();
+const authMatch = authMatches?.find(u =&gt; u.email?.toLowerCase() === email);</pre>
+      <p><strong>Remediation:</strong> Use <code>listUsers({ filter: email })</code> or <code>getUserByEmail()</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">C-03</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Non-Atomic Cascade Deletion of Users (9+ Steps, No Transaction)</span>
+      <span class="finding-location">src/pages/api/admin/usuarios/eliminar.ts:38-117</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> 9+ sequential operations without transaction. Intermediate failures leave inconsistent state. No error checking between steps.</p>
+      <p><strong>Remediation:</strong> Wrap in Supabase RPC with BEGIN/COMMIT/ROLLBACK.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-04</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Service Role Key Silently Falls Back to Anon Key</span>
+      <span class="finding-location">src/lib/supabase.ts:17</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Throw error at startup if service key missing in production.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-05</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Non-Null Assertions on usuario Without Runtime Guard (5 endpoints)</span>
+      <span class="finding-location">src/pages/api/cpo/registrar.ts:15 + 4 more</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Replace <code>!</code> with null checks and 401 returns.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-06</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">RLS Policies SELECT-Only; Writes Bypass RLS Entirely</span>
+      <span class="finding-location">supabase/migrations/</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Add restrictive INSERT/UPDATE/DELETE RLS policies as defense-in-depth.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-07</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">console.error in Production (25+ locations, No Structured Logging)</span>
+      <span class="finding-location">Multiple src/ files</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Remove for handled paths or introduce structured logger (pino).</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-08</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Unused Anon Supabase Client Export</span>
+      <span class="finding-location">src/lib/supabase.ts:14</span>
+    </div>
+    <div class="finding-body"><p><strong>Remediation:</strong> Remove the unused <code>supabase</code> (anon) export.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-09</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Duplicate Role Validation Across Middleware and API Handlers</span>
+      <span class="finding-location">middleware.ts + API routes</span>
+    </div>
+    <div class="finding-body"><p><strong>Remediation:</strong> Extract route-to-role mappings into shared config.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-10</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">18 'as any' Type Casts</span>
+      <span class="finding-location">Multiple files</span>
+    </div>
+    <div class="finding-body"><p><strong>Remediation:</strong> Use typed select queries for Supabase joins.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-11</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Stub Vacaciones Page with Hardcoded Zeros</span>
+      <span class="finding-location">src/pages/mi-residencia/vacaciones.astro:22</span>
+    </div>
+    <div class="finding-body"><p><strong>Remediation:</strong> Hide behind feature flag or show "under development" notice.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-12</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Test Coverage Limited to 5 Utility Test Files</span>
+      <span class="finding-location">src/lib/__tests__/</span>
+    </div>
+    <div class="finding-body"><p><strong>Remediation:</strong> Add tests for schemas, middleware, API routes. Set up GitHub Actions CI.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: FUNCTIONALITY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">06 / 06</p>
+  <h2 class="section-heading">Functionality</h2>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">F-01</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">/api/demanda/asignar Missing Middleware Auth Guard</span>
+      <span class="finding-location">src/middleware.ts</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Requires admin/coordinador but only checked in handler, not middleware. Middleware guards other /api/demanda/* routes but not asignar.</p>
+      <p><strong>Remediation:</strong> Add to middleware route protection.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">F-02</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">CPO Route Guards Use Fragile startsWith Matching</span>
+      <span class="finding-location">src/middleware.ts:190-201</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Routes like /api/cpo/eliminar-todo are only covered because /api/cpo/eliminar startsWith matches. New routes could be accidentally unguarded.</p>
+      <p><strong>Remediation:</strong> List all routes explicitly or use robust pattern matching.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">F-03</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Auth Callback Silently Redirects Without Code Validation</span>
+      <span class="finding-location">src/pages/auth/callback.astro:4-16</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Redirect to <code>/auth/login?error=auth_failed</code> when code is missing.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">F-04</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Error Messages Expose Database Details in URL Params</span>
+      <span class="finding-location">Multiple API endpoints</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Log detailed errors server-side. Return generic messages with correlation IDs.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">F-05</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">404 Page Requires Authentication</span>
+      <span class="finding-location">src/pages/404.astro</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Show public 404 for unknown routes (without BaseLayout auth).</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">F-06</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Cookie Consent "Rechazar" Does Not Actually Block Cookies</span>
+      <span class="finding-location">login.astro (cookie-banner)</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Remediation:</strong> Remove reject option or clarify essential cookies cannot be rejected.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Comprehensive middleware auth covering all non-public routes</div>
+    <div class="strength">Duplicate detection before inserts (email, date/hospital combos)</div>
+    <div class="strength">Rate limiting on sensitive endpoints (check-email, signout, export)</div>
+    <div class="strength">Ownership enforcement on CPO operations</div>
+    <div class="strength">Mobile-responsive sidebar with 44px touch targets</div>
+    <div class="strength">Breadcrumb navigation auto-generated from URL</div>
+    <div class="strength">Vercel bot protection active (403 challenge for automated requests)</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGES TESTED
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Appendix</p>
+  <h2 class="section-heading">Pages Tested</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Page</th>
+          <th>Auth Required</th>
+          <th>Forms</th>
+          <th>Tables</th>
+          <th>Issues</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>/auth/login</td><td>No</td><td>Google OAuth, Magic Link</td><td>0</td><td>A-01, A-04, A-06</td></tr>
+        <tr><td>/auth/callback</td><td>No</td><td>0</td><td>0</td><td>S-03, F-03</td></tr>
+        <tr><td>/legal/privacidad</td><td>No</td><td>0</td><td>0</td><td>&mdash;</td></tr>
+        <tr><td>/ (Dashboard)</td><td>Yes</td><td>0</td><td>Yes</td><td>&mdash;</td></tr>
+        <tr><td>/admin/usuarios</td><td>Admin/Coord</td><td>Create, Edit, Delete</td><td>Yes</td><td>S-07, C-02</td></tr>
+        <tr><td>/admin/hospitales</td><td>Admin/Coord</td><td>Create, Edit, Toggle</td><td>Yes</td><td>A-03</td></tr>
+        <tr><td>/admin/profesionales</td><td>Admin/Coord</td><td>Create, Edit, Toggle</td><td>Yes</td><td>A-03</td></tr>
+        <tr><td>/admin/residentes</td><td>Admin/Coord</td><td>Create, Edit, Toggle</td><td>Yes</td><td>A-03</td></tr>
+        <tr><td>/admin/reglas</td><td>Admin/Coord</td><td>Create, Edit</td><td>Yes</td><td>A-03</td></tr>
+        <tr><td>/admin/auditoria</td><td>Admin/Coord</td><td>0</td><td>Yes</td><td>A-03</td></tr>
+        <tr><td>/cpo/registro</td><td>CPO/Admin</td><td>Register, Bulk, Delete</td><td>Yes</td><td>C-01</td></tr>
+        <tr><td>/cpo/demanda</td><td>Jefe/Admin</td><td>Save, Submit, Resolve</td><td>Yes</td><td>F-01</td></tr>
+        <tr><td>/residencias/simulador</td><td>Yes</td><td>Simulation params</td><td>Yes</td><td>P-02</td></tr>
+        <tr><td>/informes/[id]</td><td>Yes</td><td>0</td><td>0</td><td>P-02</td></tr>
+        <tr><td>/mi-residencia/vacaciones</td><td>Residente</td><td>0</td><td>Yes</td><td>C-11</td></tr>
+        <tr><td>/404</td><td>Yes</td><td>0</td><td>0</td><td>F-05</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     ALL FINDINGS SUMMARY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Reference</p>
+  <h2 class="section-heading">All Findings</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Severity</th><th>Category</th><th>Finding</th><th>Location</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>S-01</code></td><td><span class="badge badge-critical">Critical</span></td><td>Security</td><td>CSRF Protection Disabled</td><td style="font-family: var(--mono); font-size: 0.75rem">astro.config.mjs:11</td></tr>
+        <tr><td><code>S-02</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>Missing CSP Header</td><td style="font-family: var(--mono); font-size: 0.75rem">HTTP headers</td></tr>
+        <tr><td><code>S-03</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>Open Redirect in Auth Callback</td><td style="font-family: var(--mono); font-size: 0.75rem">callback.astro:16</td></tr>
+        <tr><td><code>S-04</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>Supabase .temp Exposed</td><td style="font-family: var(--mono); font-size: 0.75rem">supabase/.temp/</td></tr>
+        <tr><td><code>S-05</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>Dependency Vulnerabilities (5 HIGH)</td><td style="font-family: var(--mono); font-size: 0.75rem">package.json</td></tr>
+        <tr><td><code>S-06</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>Missing Security Headers</td><td style="font-family: var(--mono); font-size: 0.75rem">HTTP headers</td></tr>
+        <tr><td><code>S-07</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>innerHTML DOM XSS</td><td style="font-family: var(--mono); font-size: 0.75rem">usuarios.astro:358</td></tr>
+        <tr><td><code>S-08</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>Email Enumeration</td><td style="font-family: var(--mono); font-size: 0.75rem">check-email.ts</td></tr>
+        <tr><td><code>S-09</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>Pervasive service_role</td><td style="font-family: var(--mono); font-size: 0.75rem">supabase.ts:17</td></tr>
+        <tr><td><code>S-10</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>Weak Password Policy</td><td style="font-family: var(--mono); font-size: 0.75rem">config.toml:175</td></tr>
+        <tr><td><code>S-11</code></td><td><span class="badge badge-low">Low</span></td><td>Security</td><td>Rate Limiter Cold Start Reset</td><td style="font-family: var(--mono); font-size: 0.75rem">rate-limit.ts:10</td></tr>
+        <tr><td><code>S-12</code></td><td><span class="badge badge-low">Low</span></td><td>Security</td><td>No robots.txt/security.txt</td><td style="font-family: var(--mono); font-size: 0.75rem">/robots.txt</td></tr>
+        <tr><td><code>A-01</code></td><td><span class="badge badge-high">High</span></td><td>A11y</td><td>Email Input No Label</td><td style="font-family: var(--mono); font-size: 0.75rem">login.astro:266</td></tr>
+        <tr><td><code>A-02</code></td><td><span class="badge badge-high">High</span></td><td>A11y</td><td>No aria-live Regions</td><td style="font-family: var(--mono); font-size: 0.75rem">All files</td></tr>
+        <tr><td><code>A-03</code></td><td><span class="badge badge-high">High</span></td><td>A11y</td><td>26+ Tables No Name</td><td style="font-family: var(--mono); font-size: 0.75rem">Multiple pages</td></tr>
+        <tr><td><code>A-04</code></td><td><span class="badge badge-high">High</span></td><td>A11y</td><td>Login Tabs No ARIA</td><td style="font-family: var(--mono); font-size: 0.75rem">login.astro:245</td></tr>
+        <tr><td><code>A-05</code></td><td><span class="badge badge-high">High</span></td><td>A11y</td><td>Focus Indicators Removed</td><td style="font-family: var(--mono); font-size: 0.75rem">15+ files</td></tr>
+        <tr><td><code>A-06</code></td><td><span class="badge badge-high">High</span></td><td>A11y</td><td>Opacity Contrast Fail</td><td style="font-family: var(--mono); font-size: 0.75rem">login, BaseLayout</td></tr>
+        <tr><td><code>A-07</code></td><td><span class="badge badge-high">High</span></td><td>A11y</td><td>Modal No Focus Trap</td><td style="font-family: var(--mono); font-size: 0.75rem">Modal.astro</td></tr>
+        <tr><td><code>A-08</code></td><td><span class="badge badge-medium">Medium</span></td><td>A11y</td><td>SVGs No aria-hidden</td><td style="font-family: var(--mono); font-size: 0.75rem">BaseLayout</td></tr>
+        <tr><td><code>A-09</code></td><td><span class="badge badge-medium">Medium</span></td><td>A11y</td><td>Menu No aria-expanded</td><td style="font-family: var(--mono); font-size: 0.75rem">UserMenu.astro:28</td></tr>
+        <tr><td><code>A-10</code></td><td><span class="badge badge-medium">Medium</span></td><td>A11y</td><td>Select No Label</td><td style="font-family: var(--mono); font-size: 0.75rem">ViewAsRole:64</td></tr>
+        <tr><td><code>A-11</code></td><td><span class="badge badge-medium">Medium</span></td><td>A11y</td><td>Auto-Submit Selects</td><td style="font-family: var(--mono); font-size: 0.75rem">20+ elements</td></tr>
+        <tr><td><code>A-12</code></td><td><span class="badge badge-medium">Medium</span></td><td>A11y</td><td>Heading Hierarchy</td><td style="font-family: var(--mono); font-size: 0.75rem">BaseLayout:79</td></tr>
+        <tr><td><code>A-13</code></td><td><span class="badge badge-low">Low</span></td><td>A11y</td><td>SVG Logo No aria-hidden</td><td style="font-family: var(--mono); font-size: 0.75rem">login.astro:224</td></tr>
+        <tr><td><code>A-14</code></td><td><span class="badge badge-low">Low</span></td><td>A11y</td><td>lang es vs es-AR</td><td style="font-family: var(--mono); font-size: 0.75rem">login.astro:17</td></tr>
+        <tr><td><code>A-15</code></td><td><span class="badge badge-low">Low</span></td><td>A11y</td><td>Modal No aria-labelledby</td><td style="font-family: var(--mono); font-size: 0.75rem">Modal.astro:38</td></tr>
+        <tr><td><code>A-16</code></td><td><span class="badge badge-low">Low</span></td><td>A11y</td><td>Spinner No reduced-motion</td><td style="font-family: var(--mono); font-size: 0.75rem">login.astro:203</td></tr>
+        <tr><td><code>P-01</code></td><td><span class="badge badge-high">High</span></td><td>Performance</td><td>Google Fonts ~378 KB</td><td style="font-family: var(--mono); font-size: 0.75rem">BaseLayout:47</td></tr>
+        <tr><td><code>P-02</code></td><td><span class="badge badge-high">High</span></td><td>Performance</td><td>Sequential Query Waterfalls</td><td style="font-family: var(--mono); font-size: 0.75rem">middleware + pages</td></tr>
+        <tr><td><code>P-03</code></td><td><span class="badge badge-high">High</span></td><td>Performance</td><td>Dead xlsx ~1.2 MB</td><td style="font-family: var(--mono); font-size: 0.75rem">package.json:27</td></tr>
+        <tr><td><code>P-04</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>Inline Styles 219 KB</td><td style="font-family: var(--mono); font-size: 0.75rem">55 components</td></tr>
+        <tr><td><code>P-05</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>Full SSR No Hybrid</td><td style="font-family: var(--mono); font-size: 0.75rem">astro.config:8</td></tr>
+        <tr><td><code>P-06</code></td><td><span class="badge badge-low">Low</span></td><td>Performance</td><td>No vercel.json Caching</td><td style="font-family: var(--mono); font-size: 0.75rem">Project root</td></tr>
+        <tr><td><code>P-07</code></td><td><span class="badge badge-low">Low</span></td><td>Performance</td><td>Inline SVGs ~5 KB</td><td style="font-family: var(--mono); font-size: 0.75rem">BaseLayout:72</td></tr>
+        <tr><td><code>SEO-01</code></td><td><span class="badge badge-medium">Medium</span></td><td>SEO</td><td>Inconsistent Favicons</td><td style="font-family: var(--mono); font-size: 0.75rem">BaseLayout vs login</td></tr>
+        <tr><td><code>SEO-02</code></td><td><span class="badge badge-low">Low</span></td><td>SEO</td><td>No OG/Twitter Tags</td><td style="font-family: var(--mono); font-size: 0.75rem">BaseLayout</td></tr>
+        <tr><td><code>SEO-03</code></td><td><span class="badge badge-low">Low</span></td><td>SEO</td><td>No Meta Desc Login</td><td style="font-family: var(--mono); font-size: 0.75rem">login.astro</td></tr>
+        <tr><td><code>SEO-04</code></td><td><span class="badge badge-low">Low</span></td><td>SEO</td><td>No Canonical URL</td><td style="font-family: var(--mono); font-size: 0.75rem">BaseLayout</td></tr>
+        <tr><td><code>C-01</code></td><td><span class="badge badge-high">High</span></td><td>Code</td><td>Actions No Auth</td><td style="font-family: var(--mono); font-size: 0.75rem">cobertura.ts:15</td></tr>
+        <tr><td><code>C-02</code></td><td><span class="badge badge-high">High</span></td><td>Code</td><td>listUsers() All Users</td><td style="font-family: var(--mono); font-size: 0.75rem">crear.ts:64</td></tr>
+        <tr><td><code>C-03</code></td><td><span class="badge badge-high">High</span></td><td>Code</td><td>Non-Atomic Deletion</td><td style="font-family: var(--mono); font-size: 0.75rem">eliminar.ts:38</td></tr>
+        <tr><td><code>C-04</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code</td><td>Service Key Fallback</td><td style="font-family: var(--mono); font-size: 0.75rem">supabase.ts:17</td></tr>
+        <tr><td><code>C-05</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code</td><td>Non-Null Assertions</td><td style="font-family: var(--mono); font-size: 0.75rem">5 endpoints</td></tr>
+        <tr><td><code>C-06</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code</td><td>RLS SELECT Only</td><td style="font-family: var(--mono); font-size: 0.75rem">migrations/</td></tr>
+        <tr><td><code>C-07</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code</td><td>console.error (25+)</td><td style="font-family: var(--mono); font-size: 0.75rem">Multiple files</td></tr>
+        <tr><td><code>C-08</code></td><td><span class="badge badge-low">Low</span></td><td>Code</td><td>Unused Anon Export</td><td style="font-family: var(--mono); font-size: 0.75rem">supabase.ts:14</td></tr>
+        <tr><td><code>C-09</code></td><td><span class="badge badge-low">Low</span></td><td>Code</td><td>Duplicate Role Checks</td><td style="font-family: var(--mono); font-size: 0.75rem">middleware + API</td></tr>
+        <tr><td><code>C-10</code></td><td><span class="badge badge-low">Low</span></td><td>Code</td><td>18 'as any' Casts</td><td style="font-family: var(--mono); font-size: 0.75rem">Multiple files</td></tr>
+        <tr><td><code>C-11</code></td><td><span class="badge badge-low">Low</span></td><td>Code</td><td>Stub Vacaciones</td><td style="font-family: var(--mono); font-size: 0.75rem">vacaciones.astro</td></tr>
+        <tr><td><code>C-12</code></td><td><span class="badge badge-low">Low</span></td><td>Code</td><td>Limited Tests</td><td style="font-family: var(--mono); font-size: 0.75rem">__tests__/</td></tr>
+        <tr><td><code>F-01</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functional</td><td>asignar No Middleware</td><td style="font-family: var(--mono); font-size: 0.75rem">middleware.ts</td></tr>
+        <tr><td><code>F-02</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functional</td><td>Fragile startsWith Guards</td><td style="font-family: var(--mono); font-size: 0.75rem">middleware:190</td></tr>
+        <tr><td><code>F-03</code></td><td><span class="badge badge-low">Low</span></td><td>Functional</td><td>No Code Validation</td><td style="font-family: var(--mono); font-size: 0.75rem">callback.astro</td></tr>
+        <tr><td><code>F-04</code></td><td><span class="badge badge-low">Low</span></td><td>Functional</td><td>DB Details in Errors</td><td style="font-family: var(--mono); font-size: 0.75rem">API endpoints</td></tr>
+        <tr><td><code>F-05</code></td><td><span class="badge badge-low">Low</span></td><td>Functional</td><td>404 Needs Auth</td><td style="font-family: var(--mono); font-size: 0.75rem">404.astro</td></tr>
+        <tr><td><code>F-06</code></td><td><span class="badge badge-low">Low</span></td><td>Functional</td><td>Cookie Reject Cosmetic</td><td style="font-family: var(--mono); font-size: 0.75rem">login.astro</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     ACTION PLAN
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Recommendations</p>
+  <h2 class="section-heading">Priority Action Plan</h2>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-critical">Immediate</span> Do now</div>
+    <ol>
+      <li><strong>Enable CSRF protection</strong> (S-01) &mdash; Set <code>checkOrigin: true</code> in astro.config.mjs. 1-line fix protecting all 25+ POST endpoints.</li>
+      <li><strong>Fix open redirect</strong> (S-03) &mdash; Validate <code>redirectTo</code> in auth/callback.astro (3-line fix).</li>
+      <li><strong>Add supabase/.temp/ to .gitignore</strong> (S-04) &mdash; Prevent project ref and pooler URL exposure.</li>
+      <li><strong>Remove dead xlsx dependency</strong> (P-03) &mdash; <code>npm uninstall xlsx</code>. Removes 1.2 MB and known CVEs.</li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-high">Short-term</span> This sprint</div>
+    <ol>
+      <li><strong>Add security headers via vercel.json</strong> (S-02, S-06) &mdash; CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy.</li>
+      <li><strong>Add auth checks to Astro Actions</strong> (C-01) &mdash; Use getActionContext() for ownership validation.</li>
+      <li><strong>Fix login page accessibility</strong> (A-01, A-04) &mdash; Label email input, implement ARIA tabs pattern.</li>
+      <li><strong>Add aria-live regions</strong> (A-02) &mdash; role="alert" on error containers, role="status" on success.</li>
+      <li><strong>Fix focus indicators</strong> (A-05) &mdash; Remove outline:none or increase contrast to 3:1.</li>
+      <li><strong>Fix opacity contrast</strong> (A-06) &mdash; Remove opacity or use colors meeting 4.5:1.</li>
+      <li><strong>Add modal focus trap</strong> (A-07) &mdash; Use native dialog or add focus cycling.</li>
+      <li><strong>Replace listUsers() with filtered query</strong> (C-02) &mdash; Prevent O(n) memory growth.</li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-medium">Medium-term</span> Next sprint</div>
+    <ol>
+      <li><strong>Self-host fonts</strong> (P-01) &mdash; @fontsource, Latin-only subsets (~378 KB &rarr; ~60 KB).</li>
+      <li><strong>Parallelize Supabase queries</strong> (P-02) &mdash; Promise.all() in 4 pages.</li>
+      <li><strong>Switch to hybrid SSR</strong> (P-05) &mdash; Prerender static pages.</li>
+      <li><strong>Add table captions</strong> (A-03) &mdash; aria-label or caption on 26+ tables.</li>
+      <li><strong>Wrap user deletion in transaction</strong> (C-03) &mdash; Supabase RPC.</li>
+      <li><strong>Add RLS write policies</strong> (C-06) &mdash; Defense-in-depth.</li>
+      <li><strong>Fix innerHTML XSS</strong> (S-07) &mdash; textContent instead of innerHTML.</li>
+      <li><strong>Add robots.txt</strong> (S-12) &mdash; Disallow: / for private app.</li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-low">Backlog</span> Low priority</div>
+    <ol>
+      <li><strong>Add OG/Twitter meta tags</strong> (SEO-02) &mdash; Rich link previews.</li>
+      <li><strong>Fix favicon references</strong> (SEO-01) &mdash; Align between layouts.</li>
+      <li><strong>Add middleware guard for /api/demanda/asignar</strong> (F-01)</li>
+      <li><strong>Replace non-null assertions</strong> (C-05) &mdash; Consistent auth pattern.</li>
+      <li><strong>Throw on missing service key</strong> (C-04) &mdash; Prevent silent fallback.</li>
+      <li><strong>Structured logging</strong> (C-07) &mdash; Replace 25+ console.error with pino.</li>
+      <li><strong>Add tests + CI</strong> (C-12) &mdash; GitHub Actions + vitest.</li>
+      <li><strong>Hide stub vacaciones</strong> (C-11) &mdash; Feature flag.</li>
+      <li><strong>Add prefers-reduced-motion</strong> (A-16)</li>
+      <li><strong>Add aria-hidden to decorative SVGs</strong> (A-08)</li>
+    </ol>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="report-footer">
+  <div>
+    <strong>Gabriel Cavedal</strong> &mdash; QA Report<br>
+    Generated 2026-02-27 with Claude Code QA Agent
+  </div>
+  <div style="text-align: right">
+    Tools: httpx, BeautifulSoup, source code analysis, npm audit<br>
+    <a href="https://rrhh-puce.vercel.app/">https://rrhh-puce.vercel.app/</a>
+  </div>
+</footer>
+
+</div><!-- .page -->
+</body>
+</html>

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Report — {{PROJECT_NAME}} — {{DATE}}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* ═══════════════════════════════════════════════════
+   TOKENS
+   ═══════════════════════════════════════════════════ */
+:root {
+  --white: #ffffff;
+  --paper: #fafaf8;
+  --ink: #1a1a1a;
+  --ink-light: #555;
+  --ink-faint: #999;
+  --ink-ghost: #ccc;
+  --rule: #e8e6e1;
+  --rule-dark: #d0cdc6;
+
+  --critical: #c0392b;
+  --critical-surface: #fdf0ef;
+  --high: #d35400;
+  --high-surface: #fef5ec;
+  --medium: #b7950b;
+  --medium-surface: #fefcf0;
+  --low: #27ae60;
+  --low-surface: #f0faf4;
+  --pass: #2e86ab;
+  --pass-surface: #eef6fa;
+
+  --font: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'DM Mono', 'JetBrains Mono', monospace;
+
+  --measure: 72rem;
+  --gap: clamp(1rem, 3vw, 2rem);
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--ink); color: var(--white); }
+
+a { color: var(--ink); text-underline-offset: 3px; }
+a:hover { color: var(--ink-light); }
+
+/* ═══════════════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════════════ */
+.page {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════ */
+.report-header {
+  padding: 4rem 0 3rem;
+  border-bottom: 2px solid var(--ink);
+}
+
+.report-header .eyebrow {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1.5rem;
+}
+
+.report-header h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.report-header .subtitle {
+  font-size: 1.15rem;
+  font-weight: 300;
+  color: var(--ink-light);
+  max-width: 40ch;
+}
+
+.report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem 3rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.85rem;
+}
+
+.report-meta div {
+  min-width: 160px;
+}
+
+.report-meta dt {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.35rem;
+}
+
+.report-meta dd {
+  color: var(--ink-light);
+}
+
+.report-meta dd a { color: var(--ink-light); }
+
+/* ═══════════════════════════════════════════════════
+   SCORES
+   ═══════════════════════════════════════════════════ */
+.scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 3rem 0;
+}
+
+.score-cell {
+  background: var(--white);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+
+.score-cell .number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.score-cell .label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.4rem;
+}
+
+.score-cell .bar {
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 0.75rem;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.score-cell .bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* ═══════════════════════════════════════════════════
+   SEVERITY SUMMARY
+   ═══════════════════════════════════════════════════ */
+.severity-strip {
+  display: flex;
+  gap: 0;
+  margin: 0 0 3rem;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.severity-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin: -2rem 0 3rem;
+  font-size: 0.78rem;
+  color: var(--ink-light);
+}
+
+.severity-legend span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.severity-legend .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   SECTION
+   ═══════════════════════════════════════════════════ */
+.audit-section {
+  padding: 3rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.audit-section:first-of-type { border-top: 2px solid var(--ink); }
+
+.section-title {
+  font-size: 0.68rem;
+  font-family: var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.35rem;
+}
+
+.section-heading {
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════
+   FINDINGS
+   ═══════════════════════════════════════════════════ */
+.finding {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--rule);
+  background: var(--white);
+}
+
+.finding[data-severity="critical"] { border-left-color: var(--critical); background: var(--critical-surface); }
+.finding[data-severity="high"] { border-left-color: var(--high); background: var(--high-surface); }
+.finding[data-severity="medium"] { border-left-color: var(--medium); background: var(--medium-surface); }
+.finding[data-severity="low"] { border-left-color: var(--low); background: var(--low-surface); }
+
+.finding-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.finding-id {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+
+.finding-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.finding-location {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.badge-critical { background: var(--critical); color: var(--white); }
+.badge-high { background: var(--high); color: var(--white); }
+.badge-medium { background: var(--medium); color: var(--white); }
+.badge-low { background: var(--low); color: var(--white); }
+.badge-pass { background: var(--pass); color: var(--white); }
+
+.finding-body {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+}
+
+.finding-body p { margin-bottom: 0.6rem; }
+.finding-body p:last-child { margin-bottom: 0; }
+.finding-body strong { color: var(--ink); font-weight: 600; }
+
+.finding-body ul, .finding-body ol {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.finding-body li { margin-bottom: 0.25rem; }
+
+/* ═══════════════════════════════════════════════════
+   CODE
+   ═══════════════════════════════════════════════════ */
+pre {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  background: var(--paper);
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════════
+   TABLES
+   ═══════════════════════════════════════════════════ */
+.table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--ink);
+  white-space: nowrap;
+}
+
+td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+/* ═══════════════════════════════════════════════════
+   STRENGTHS
+   ═══════════════════════════════════════════════════ */
+.strengths-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.strength {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.strength::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.85rem;
+  width: 8px;
+  height: 2px;
+  background: var(--pass);
+}
+
+/* ═══════════════════════════════════════════════════
+   PERFORMANCE METRICS
+   ═══════════════════════════════════════════════════ */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 1.5rem 0;
+}
+
+.metric {
+  background: var(--white);
+  padding: 1rem;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.metric-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.15rem;
+}
+
+.metric-note {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  margin-top: 0.25rem;
+}
+
+/* ═══════════════════════════════════════════════════
+   ACTION PLAN
+   ═══════════════════════════════════════════════════ */
+.action-tier {
+  margin-bottom: 2rem;
+}
+
+.action-tier-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-tier ol {
+  list-style: none;
+  counter-reset: action;
+  padding: 0;
+}
+
+.action-tier li {
+  counter-increment: action;
+  padding: 0.5rem 0 0.5rem 2.5rem;
+  position: relative;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.action-tier li:last-child { border-bottom: none; }
+
+.action-tier li::before {
+  content: counter(action, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  position: absolute;
+  left: 0;
+  top: 0.6rem;
+}
+
+/* ═══════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════ */
+.report-footer {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.report-footer a { color: var(--ink-faint); }
+
+/* ═══════════════════════════════════════════════════
+   SEPARATOR
+   ═══════════════════════════════════════════════════ */
+.spacer { height: 2rem; }
+.spacer-lg { height: 4rem; }
+
+/* ═══════════════════════════════════════════════════
+   PRINT
+   ═══════════════════════════════════════════════════ */
+@media print {
+  body { background: white; }
+  .page { max-width: none; padding: 0; }
+  .finding { break-inside: avoid; }
+  .audit-section { break-before: auto; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════ -->
+<header class="report-header">
+  <p class="eyebrow">Quality Assurance Report</p>
+  <h1>{{PROJECT_NAME}}</h1>
+  <p class="subtitle">{{PROJECT_DESCRIPTION}}</p>
+
+  <dl class="report-meta">
+    <div><dt>Date</dt>
+    <dd>{{DATE}}</dd></div>
+    <div><dt>Target</dt>
+    <dd><a href="{{TARGET_URL}}">{{TARGET_URL}}</a></dd></div>
+    <div><dt>Repository</dt>
+    <dd><a href="{{REPO_URL}}">{{REPO_URL}}</a></dd></div>
+    <div><dt>Auditor</dt>
+    <dd>Gabriel Cavedal</dd></div>
+    <div><dt>Scope</dt>
+    <dd>Security, Accessibility, Performance, SEO, Code Quality, Functionality</dd></div>
+    <div><dt>Stack</dt>
+    <dd>{{TECH_STACK}}</dd></div>
+  </dl>
+</header>
+
+<!-- ═══════════════════════════════════════════════════
+     SCORES
+     ═══════════════════════════════════════════════════ -->
+<div class="scores">
+  <!--
+    For each category, set:
+    - .number color based on score (use --critical for <=3, --high for 4, --medium for 5-6, --pass for 7+)
+    - .bar-fill width as score * 10%
+    - .bar-fill background as the same color
+  -->
+  <div class="score-cell">
+    <div class="number" style="color: var(--critical)">{{SCORE_SECURITY}}</div>
+    <div class="label">Security</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_SECURITY_PCT}}%; background: var(--critical)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--high)">{{SCORE_ACCESSIBILITY}}</div>
+    <div class="label">Accessibility</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_ACCESSIBILITY_PCT}}%; background: var(--high)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">{{SCORE_PERFORMANCE}}</div>
+    <div class="label">Performance</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_PERFORMANCE_PCT}}%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--medium)">{{SCORE_SEO}}</div>
+    <div class="label">SEO</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_SEO_PCT}}%; background: var(--medium)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">{{SCORE_CODE}}</div>
+    <div class="label">Code Quality</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_CODE_PCT}}%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">{{SCORE_FUNCTIONALITY}}</div>
+    <div class="label">Functionality</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_FUNCTIONALITY_PCT}}%; background: var(--pass)"></div></div>
+  </div>
+</div>
+
+<!-- Severity distribution bar -->
+<div class="severity-strip">
+  <!-- widths should sum to 100%, proportional to finding counts -->
+  <div style="flex: {{COUNT_CRITICAL}}; background: var(--critical)"></div>
+  <div style="flex: {{COUNT_HIGH}}; background: var(--high)"></div>
+  <div style="flex: {{COUNT_MEDIUM}}; background: var(--medium)"></div>
+  <div style="flex: {{COUNT_LOW}}; background: var(--low)"></div>
+</div>
+<div class="severity-legend">
+  <span><span class="dot" style="background: var(--critical)"></span> {{COUNT_CRITICAL}} Critical</span>
+  <span><span class="dot" style="background: var(--high)"></span> {{COUNT_HIGH}} High</span>
+  <span><span class="dot" style="background: var(--medium)"></span> {{COUNT_MEDIUM}} Medium</span>
+  <span><span class="dot" style="background: var(--low)"></span> {{COUNT_LOW}} Low</span>
+  <span style="color: var(--ink-faint); margin-left: auto">{{COUNT_TOTAL}} findings</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: SECURITY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">01 / 06</p>
+  <h2 class="section-heading">Security</h2>
+
+  <!-- Repeat .finding blocks per finding, ordered by severity (critical first) -->
+  <!--
+  <div class="finding" data-severity="critical">
+    <div class="finding-head">
+      <span class="finding-id">S-01</span>
+      <span class="badge badge-critical">Critical</span>
+      <span class="finding-name">Finding title here</span>
+      <span class="finding-location">file.ts:42</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Description of impact.</p>
+      <p>Detailed explanation with evidence.</p>
+      <pre>code snippet if applicable</pre>
+      <p><strong>Remediation:</strong></p>
+      <ul>
+        <li>Step one</li>
+        <li>Step two</li>
+      </ul>
+    </div>
+  </div>
+  -->
+
+  <!-- {{FINDINGS_SECURITY}} -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: ACCESSIBILITY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">02 / 06</p>
+  <h2 class="section-heading">Accessibility</h2>
+
+  <!-- {{FINDINGS_ACCESSIBILITY}} -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: PERFORMANCE
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">03 / 06</p>
+  <h2 class="section-heading">Performance</h2>
+
+  <!-- Metrics grid -->
+  <!--
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">75 ms</div>
+      <div class="metric-label">TTFB</div>
+      <div class="metric-note">&lt; 800 ms</div>
+    </div>
+    ...
+  </div>
+  -->
+
+  <!-- {{METRICS_PERFORMANCE}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_PERFORMANCE}} -->
+    <!--
+    <div class="strength">Strength description here</div>
+    -->
+  </div>
+
+  <!-- {{FINDINGS_PERFORMANCE}} -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: SEO
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">04 / 06</p>
+  <h2 class="section-heading">SEO</h2>
+
+  <!-- {{FINDINGS_SEO}} -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: CODE QUALITY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">05 / 06</p>
+  <h2 class="section-heading">Code Quality</h2>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_CODE}} -->
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- {{FINDINGS_CODE}} -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION: FUNCTIONALITY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">06 / 06</p>
+  <h2 class="section-heading">Functionality</h2>
+
+  <!-- {{FINDINGS_FUNCTIONALITY}} -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PAGES TESTED
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Appendix</p>
+  <h2 class="section-heading">Pages Tested</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Page</th>
+          <th>Status</th>
+          <th>A11y Issues</th>
+          <th>Forms</th>
+          <th>Tables</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- {{PAGES_TABLE}} -->
+        <!--
+        <tr>
+          <td>/ (Dashboard)</td>
+          <td><span class="badge badge-pass">200</span></td>
+          <td>1</td>
+          <td>2</td>
+          <td>0</td>
+        </tr>
+        -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     ALL FINDINGS SUMMARY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Reference</p>
+  <h2 class="section-heading">All Findings</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Severity</th>
+          <th>Category</th>
+          <th>Finding</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- {{FINDINGS_SUMMARY_TABLE}} -->
+        <!--
+        <tr>
+          <td><code>S-01</code></td>
+          <td><span class="badge badge-critical">Critical</span></td>
+          <td>Security</td>
+          <td>Finding title</td>
+          <td style="font-family: var(--mono); font-size: 0.75rem">file.ts:42</td>
+        </tr>
+        -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     ACTION PLAN
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Recommendations</p>
+  <h2 class="section-heading">Priority Action Plan</h2>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-critical">Immediate</span> Do now</div>
+    <ol>
+      <!-- {{ACTIONS_IMMEDIATE}} -->
+      <!--
+      <li><strong>Action title</strong> — description</li>
+      -->
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-high">Short-term</span> This sprint</div>
+    <ol>
+      <!-- {{ACTIONS_SHORT}} -->
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-medium">Medium-term</span> Next sprint</div>
+    <ol>
+      <!-- {{ACTIONS_MEDIUM}} -->
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-low">Backlog</span> Low priority</div>
+    <ol>
+      <!-- {{ACTIONS_BACKLOG}} -->
+    </ol>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════ -->
+<footer class="report-footer">
+  <div>
+    <strong>Gabriel Cavedal</strong> &mdash; QA Report<br>
+    Generated {{DATE}} with Claude Code QA Agent
+  </div>
+  <div style="text-align: right">
+    Tools: httpx, BeautifulSoup, agent-browser, source code analysis<br>
+    <a href="{{TARGET_URL}}">{{TARGET_URL}}</a>
+  </div>
+</footer>
+
+</div><!-- .page -->
+</body>
+</html>

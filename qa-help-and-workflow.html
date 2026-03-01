@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Workspace — How It Works</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --white: #ffffff;
+  --paper: #fafaf8;
+  --ink: #1a1a1a;
+  --ink-light: #555;
+  --ink-faint: #999;
+  --ink-ghost: #ccc;
+  --rule: #e8e6e1;
+  --rule-dark: #d0cdc6;
+
+  --critical: #c0392b;
+  --critical-surface: #fdf0ef;
+  --high: #d35400;
+  --high-surface: #fef5ec;
+  --medium: #b7950b;
+  --medium-surface: #fefcf0;
+  --low: #27ae60;
+  --low-surface: #f0faf4;
+  --pass: #2e86ab;
+  --pass-surface: #eef6fa;
+
+  --font: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'DM Mono', 'JetBrains Mono', monospace;
+  --measure: 80rem;
+  --gap: clamp(1rem, 3vw, 2rem);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.doc-header {
+  padding: 4rem 0 3rem;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 4rem;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--ink-light);
+  max-width: 55ch;
+  margin-top: 0.75rem;
+}
+
+/* ── Sections ────────────────────────────────────────── */
+.doc-section {
+  padding: 3rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.doc-section:first-of-type {
+  border-top: none;
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.4rem;
+}
+
+h2 {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 1.75rem 0 0.75rem;
+  color: var(--ink-light);
+}
+
+p {
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  max-width: 70ch;
+  margin-bottom: 1rem;
+}
+
+/* ── Diagram container ───────────────────────────────── */
+.diagram-wrap {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  padding: 2rem 1.5rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.diagram-wrap .mermaid {
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Inline info grid ────────────────────────────────── */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 1.5rem 0;
+}
+
+.info-cell {
+  background: var(--white);
+  padding: 1.25rem 1.5rem;
+}
+
+.info-cell .cell-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.4rem;
+}
+
+.info-cell .cell-value {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+}
+
+.info-cell strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+/* ── Agent table ─────────────────────────────────────── */
+.agent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin: 1.5rem 0;
+}
+
+.agent-table th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--ink);
+  white-space: nowrap;
+}
+
+.agent-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  color: var(--ink-light);
+}
+
+.agent-table tr:hover td { background: var(--paper); }
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.badge-security    { background: #fdf0ef; color: var(--critical); border: 1px solid var(--critical); }
+.badge-a11y        { background: #fef5ec; color: var(--high);     border: 1px solid var(--high); }
+.badge-perf        { background: var(--pass-surface); color: var(--pass); border: 1px solid var(--pass); }
+.badge-seo         { background: var(--medium-surface); color: var(--medium); border: 1px solid var(--medium); }
+.badge-code        { background: #f0f0f0; color: #444; border: 1px solid #ccc; }
+.badge-func        { background: var(--low-surface); color: var(--low); border: 1px solid var(--low); }
+.badge-dep         { background: #f5eef8; color: #7d3c98; border: 1px solid #7d3c98; }
+.badge-comp        { background: #eaf2ff; color: #1a5276; border: 1px solid #1a5276; }
+.badge-ops         { background: #f0f9f0; color: #1e8449; border: 1px solid #1e8449; }
+.badge-fw          { background: #fdfefe; color: #117a8b; border: 1px solid #117a8b; }
+
+/* ── Verdict blocks ──────────────────────────────────── */
+.verdict-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 1.5rem 0;
+}
+
+.verdict-cell {
+  background: var(--white);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.verdict-cell .v-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.5rem;
+}
+
+.verdict-cell .v-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.verdict-cell .v-note {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  line-height: 1.5;
+}
+
+.verdict-ready    .v-value { color: #27ae60; }
+.verdict-reserves .v-value { color: #d4a017; }
+.verdict-notready .v-value { color: var(--critical); }
+
+/* ── Score formula ───────────────────────────────────── */
+.formula-box {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0;
+  color: var(--ink);
+  line-height: 2;
+}
+
+.formula-box .formula-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.5rem;
+  font-family: var(--font);
+}
+
+/* ── File tree ───────────────────────────────────────── */
+.tree {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  padding: 1.5rem;
+  margin: 1.25rem 0;
+  line-height: 2;
+  color: var(--ink-light);
+}
+
+.tree .dir  { color: var(--ink); font-weight: 500; }
+.tree .note { color: var(--ink-faint); font-size: 0.72rem; }
+.tree .critical-note { color: var(--critical); font-size: 0.72rem; font-weight: 500; }
+
+/* ── Input required callout ──────────────────────────── */
+.callout {
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--ink);
+  background: var(--white);
+  margin: 1.25rem 0;
+  font-size: 0.87rem;
+  color: var(--ink-light);
+}
+
+.callout.required { border-left-color: var(--critical); background: var(--critical-surface); }
+.callout.info     { border-left-color: var(--pass);     background: var(--pass-surface); }
+.callout.warn     { border-left-color: var(--medium);   background: var(--medium-surface); }
+
+.callout strong { color: var(--ink); }
+
+/* ── Footer ──────────────────────────────────────────── */
+.doc-footer {
+  margin-top: 4rem;
+  padding: 2rem 0;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══════════════════════════════════════════════════
+     HEADER
+     ══════════════════════════════════════════════════ -->
+<header class="doc-header">
+  <p class="eyebrow">QA Workspace — Internal Reference</p>
+  <h1>How the QA Workspace Works</h1>
+  <p class="subtitle">Inputs, workflow, parallel agents, scoring, artifacts, and report pipeline — everything you need to understand before starting an audit.</p>
+</header>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 1: WHAT YOU NEED TO PROVIDE
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 01</p>
+  <h2>What You Need to Provide</h2>
+  <p>Every audit requires exactly two inputs. Without both, the audit cannot start.</p>
+
+  <div class="callout required">
+    <strong>Required — both must be provided before any audit begins:</strong><br>
+    1. A <strong>GitHub repository URL</strong> (for source code analysis, dependency checks, CI/CD review, secrets scanning)<br>
+    2. A <strong>live site URL</strong> (for HTTP checks, browser testing, performance metrics, accessibility scanning)
+  </div>
+
+  <div class="info-grid">
+    <div class="info-cell">
+      <div class="cell-label">GitHub Repo URL</div>
+      <strong>Source Code Access</strong>
+      <div class="cell-value">Used for: code quality, dependency health, secrets detection, CI/CD config, compliance patterns, framework-specific checks.</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Live Site URL</div>
+      <strong>Runtime Access</strong>
+      <div class="cell-value">Used for: HTTP headers, TTFB, accessibility scanning, SEO meta, broken links, browser flows, Core Web Vitals.</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Optional: Auth Credentials</div>
+      <strong>Login-Gated Apps</strong>
+      <div class="cell-value">If the app has a login wall: provide API token / email+password, or log in via Brave browser (CDP session is reused).</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Optional: Risk Profile</div>
+      <strong>Adjusts Score Weights</strong>
+      <div class="cell-value">High data sensitivity → Security weight increases to 30%. E-commerce → Compliance weight increases. Default weights apply otherwise.</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 2: MAIN WORKFLOW
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 02</p>
+  <h2>Main Audit Workflow</h2>
+  <p>The full audit runs in 7 phases. Phases 3 and 4 execute simultaneously across 10 background agents.</p>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart TD
+    A([User provides GitHub URL + Live URL]) --> B{Both URLs\nprovided?}
+    B -- No --> C[Ask for missing URL\nDo NOT proceed]
+    B -- Yes --> D[Phase 1 — Intake\nStack detection · Auth · Risk profile · Scope]
+    D --> E[Phase 2 — Clone repo\ngit clone → github-repositories/repo-name/\nIf already cloned: git pull origin master]
+    E --> F[Phase 3 — Spawn 10 parallel agents\nAll run simultaneously in background]
+
+    F --> G1[Security]
+    F --> G2[Accessibility]
+    F --> G3[Performance]
+    F --> G4[SEO]
+    F --> G5[Code Quality]
+    F --> G6[Functional]
+    F --> G7[Dependencies]
+    F --> G8[Compliance]
+    F --> G9[Operations]
+    F --> G10[Framework]
+
+    G1 & G2 & G3 & G4 & G5 & G6 & G7 & G8 & G9 & G10 --> H[Phase 4 — Collect all findings]
+    H --> I[Phase 5 — Score each category\n10 − criticals×2 + highs×1 + mediums×0.4 + lows×0.1]
+    I --> J[Phase 6 — Determine verdict\nREADY / READY WITH RESERVES / NOT READY]
+    J --> K[Phase 7 — Compile HTML + Markdown report\nWrite to reports/ using template.html]
+    K --> L([Auto-commit hook pushes to\nkodexArg/qa-reports on GitHub])
+
+    style A fill:#fafaf8,stroke:#1a1a1a
+    style L fill:#f0faf4,stroke:#27ae60
+    style C fill:#fdf0ef,stroke:#c0392b
+    style F fill:#eef6fa,stroke:#2e86ab
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 3: PARALLEL AGENTS
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 03</p>
+  <h2>The 10 Parallel Audit Agents</h2>
+  <p>Each agent is a background Task specialized for one audit area. All 10 run simultaneously.</p>
+
+  <table class="agent-table">
+    <thead>
+      <tr>
+        <th>Agent</th>
+        <th>ID Prefix</th>
+        <th>Primary Tool</th>
+        <th>What It Checks</th>
+        <th>Score Weight</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-security">Security</span></td>
+        <td><code>S-xx</code></td>
+        <td>Python + httpx</td>
+        <td>HTTP headers, HTTPS, CORS, OWASP checks, auth review, input validation, API surface</td>
+        <td>25%</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-a11y">Accessibility</span></td>
+        <td><code>A-xx</code></td>
+        <td>Python + BeautifulSoup4</td>
+        <td>WCAG 2.2 AA: labels, ARIA roles, landmarks, headings hierarchy, form accessibility, color contrast</td>
+        <td>20%</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-perf">Performance</span></td>
+        <td><code>P-xx</code></td>
+        <td>Python + httpx</td>
+        <td>Core Web Vitals, TTFB, page weight, CLS, resource optimization, caching headers</td>
+        <td>15%</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-seo">SEO</span></td>
+        <td><code>E-xx</code></td>
+        <td>Python + BeautifulSoup4</td>
+        <td>Meta tags, Open Graph, robots.txt, sitemap, structured data, canonical URLs, heading structure</td>
+        <td>10%</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-code">Code Quality</span></td>
+        <td><code>C-xx</code></td>
+        <td>Grep + Read</td>
+        <td>Hardcoded secrets, type safety, architecture patterns, dead code, naming conventions</td>
+        <td>15%</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-func">Functional</span></td>
+        <td><code>FN-xx</code></td>
+        <td>agent-browser (Brave CDP)</td>
+        <td>Navigation flows, form submission, edge cases, error handling, resilience, broken links</td>
+        <td>15%</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-dep">Dependencies</span></td>
+        <td><code>D-xx</code></td>
+        <td>Python scripts + npm audit</td>
+        <td>Vulnerable packages, outdated deps, license compatibility, supply chain risks</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-comp">Compliance</span></td>
+        <td><code>R-xx</code></td>
+        <td>Grep + Read + httpx</td>
+        <td>GDPR, CCPA, cookie consent banner, privacy policy, Terms of Service coverage</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-ops">Operations</span></td>
+        <td><code>O-xx</code></td>
+        <td>Grep + Read</td>
+        <td>CI/CD pipelines, monitoring setup, secrets management, disaster recovery, rollback strategy</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-fw">Framework</span></td>
+        <td><code>FW-xx</code></td>
+        <td>Grep + Read</td>
+        <td>Astro islands / Angular change detection, SSR config, bundle optimization, framework best practices</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:0.78rem; color: var(--ink-faint); margin-top:0.5rem;">Score weights apply to the weighted overall score. Security, A11y, Perf, Code, and Func are the primary weighted dimensions. Deps, Compliance, Ops, and Framework scores are reported individually and influence the verdict qualitatively.</p>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 4: AUTHENTICATION FLOWS
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 04</p>
+  <h2>Authentication Strategy</h2>
+  <p>For login-gated applications, the agent follows a three-tier approach, preferring automated token auth.</p>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart LR
+    START([App requires login?]) --> Q{Auth method}
+
+    Q --> T1["Tier 1 — API Token (preferred)\nUser provides email+password or API key\nAgent authenticates via /auth/v1/token\nUses access_token as cookie with httpx\nCrawls all authenticated pages programmatically"]
+
+    Q --> T2["Tier 2 — Brave CDP\nUser logs in manually via Brave browser\nBrave launched with --remote-debugging-port=9222\nAgent connects: npx agent-browser --cdp 9222\nLeverages existing authenticated session"]
+
+    Q --> T3["Tier 3 — Fallback\nUser provides screenshots of key pages\nAgent reviews source code for auth logic\nPartial coverage — clearly noted in report"]
+
+    T1 --> CLEAN["Tokens stored in /tmp/ only\nCleaned up after audit\nNever written to project files"]
+    T2 --> CLEAN
+    T3 --> CLEAN
+
+    style T1 fill:#f0faf4,stroke:#27ae60
+    style T2 fill:#eef6fa,stroke:#2e86ab
+    style T3 fill:#fefcf0,stroke:#b7950b
+    style CLEAN fill:#fafaf8,stroke:#ccc
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 5: SCORING & VERDICT
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 05</p>
+  <h2>Scoring Formula &amp; Launch Verdict</h2>
+
+  <div class="formula-box">
+    <div class="formula-label">Category Score (per audit area)</div>
+    Score = 10 &minus; (Critical &times; 2.0 + High &times; 1.0 + Medium &times; 0.4 + Low &times; 0.1)<br>
+    Clamped to [0, 10]
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-label">Overall Score (weighted average)</div>
+    Overall = Security×25% + A11y×20% + Perf×15% + Code×15% + Func×15% + SEO×10%<br>
+    Weights adjust based on risk profile (e.g., high data sensitivity → Security increases to 30%)
+  </div>
+
+  <div class="verdict-row">
+    <div class="verdict-cell verdict-ready">
+      <div class="v-label">Verdict A</div>
+      <div class="v-value">READY</div>
+      <div class="v-note">Overall ≥ 8.0<br>Zero Critical findings<br>Zero unresolved High findings</div>
+    </div>
+    <div class="verdict-cell verdict-reserves">
+      <div class="v-label">Verdict B</div>
+      <div class="v-value">READY WITH RESERVES</div>
+      <div class="v-note">Overall 6.0 – 7.9<br>Zero Critical findings<br>High findings have a documented remediation timeline</div>
+    </div>
+    <div class="verdict-cell verdict-notready">
+      <div class="v-label">Verdict C</div>
+      <div class="v-value">NOT READY</div>
+      <div class="v-note">Overall &lt; 6.0<br>— OR —<br>Any unresolved Critical finding</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 6: FOLDER STRUCTURE
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 06</p>
+  <h2>Folder Structure</h2>
+  <p>The QA workspace is a fixed sandbox. Target repos are cloned in, never committed out.</p>
+
+  <div class="tree">
+<span class="dir">QA/</span>                              <span class="note">← this workspace (git repo: kodexArg/QA)</span>
+├── <span class="dir">AGENTS.md</span>                    <span class="note">Agent role, workflow strategy, tool reference</span>
+├── <span class="dir">.claude/</span>
+│   ├── CLAUDE.md                <span class="note">QA identity, rules, report format, skills list</span>
+│   ├── settings.json            <span class="note">PostToolUse hook → auto-commit reports</span>
+│   └── <span class="dir">skills/</span>               <span class="note">11 QA-specific skills (qa-intake, qa-security, etc.)</span>
+├── <span class="dir">github-repositories/</span>         <span class="critical-note">← gitignored entirely — never committed</span>
+│   └── <span class="dir">RRHH/</span>                 <span class="note">Example clone of luinloder/RRHH (testing sandbox)</span>
+├── <span class="dir">reports/</span>                     <span class="note">← separate git repo: kodexArg/qa-reports (public)</span>
+│   ├── template.html            <span class="note">Base HTML template for all audit reports</span>
+│   └── YYYY-MM-DD_owner-repo_type.html  <span class="note">Generated reports (auto-pushed)</span>
+├── <span class="dir">scripts/</span>                     <span class="note">Reusable Python automation scripts (uv run)</span>
+└── <span class="dir">context/</span>                     <span class="note">Reference PDFs, guides, client briefs</span>
+  </div>
+
+  <div class="callout warn">
+    <strong>Critical rule:</strong> <code>github-repositories/</code> is the testing sandbox — repos cloned here are never committed or pushed from this workspace. The <code>.gitignore</code> excludes the entire directory, so no per-repo entries are needed. Always <code>git pull origin master</code> inside a clone before starting a new test run.
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 7: REPORT PIPELINE
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 07</p>
+  <h2>Report Pipeline — Auto-Publish</h2>
+  <p>Reports are written locally and automatically committed and pushed to the public <code>kodexArg/qa-reports</code> GitHub repo via a PostToolUse hook.</p>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+sequenceDiagram
+    participant Agent as QA Agent
+    participant Local as reports/ (local git repo)
+    participant Hook as PostToolUse Hook
+    participant GitHub as kodexArg/qa-reports (public)
+
+    Agent->>Local: Write HTML report\n(YYYY-MM-DD_owner-repo_type.html)
+    Agent->>Local: Write Markdown companion\n(same filename, .md extension)
+    Local-->>Hook: Triggered on every Write/Edit\ninside reports/
+    Hook->>Local: git add *.html
+    Hook->>Local: git commit -m "auto: add report"
+    Hook->>GitHub: git push origin master
+    GitHub-->>Agent: ✓ Report live at\ngithub.com/kodexArg/qa-reports
+    </div>
+  </div>
+
+  <div class="callout info">
+    <strong>Report naming convention:</strong> <code>reports/YYYY-MM-DD_github-owner-repo_audit-type.html</code><br>
+    Example: <code>2026-03-01_luinloder-RRHH_full-audit.html</code><br>
+    Only <code>.html</code> files are tracked in the qa-reports repo (<code>.gitignore</code> excludes everything else including <code>.md</code>).
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 8: BROWSER TESTING SETUP
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 08</p>
+  <h2>Browser Testing — Brave + agent-browser</h2>
+  <p>All interactive browser tests use <code>agent-browser</code> connected to Brave via Chrome DevTools Protocol (CDP). This preserves your login session.</p>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart LR
+    U([You launch Brave with CDP]) --> B["brave-browser\n--remote-debugging-port=9222\n--user-data-dir=$HOME/.config/Brave"]
+    B --> V["curl http://localhost:9222/json/version\n→ verify CDP is live"]
+    V --> C["Agent connects:\nnpx agent-browser --cdp 9222"]
+    C --> D1["Open URL:\nnpx agent-browser --cdp 9222 open https://site.com"]
+    C --> D2["DOM snapshot:\nnpx agent-browser --cdp 9222 snapshot -i"]
+    C --> D3["Screenshot:\nnpx agent-browser --cdp 9222 screenshot /path/out.png"]
+    C --> D4["Click / fill forms:\nnpx agent-browser --cdp 9222 click 'button'"]
+
+    style U fill:#fafaf8,stroke:#1a1a1a
+    style B fill:#eef6fa,stroke:#2e86ab
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Do NOT use:</strong> the <code>chrome-devtools</code> skill, <code>scoutqa-test</code> skill, or any other browser automation path. Always use <code>agent-browser</code> with Brave CDP only.
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 9: QUICK REFERENCE CHEAT SHEET
+     ══════════════════════════════════════════════════ -->
+<section class="doc-section">
+  <p class="section-label">Section 09</p>
+  <h2>Quick Reference</h2>
+
+  <div class="info-grid">
+    <div class="info-cell">
+      <div class="cell-label">To start a full audit</div>
+      <div class="cell-value">Provide GitHub URL + Live URL. Say "run full audit". The agent runs intake, clones repo, spawns 10 agents in parallel, then writes the report.</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">To run a single check</div>
+      <div class="cell-value">Say "run security scan on X" or "check accessibility of X". The agent runs only that area and produces a focused report.</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Auth-gated apps</div>
+      <div class="cell-value">Either provide API credentials (preferred) or log in via Brave first, then ask the agent to connect via CDP port 9222.</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Report location</div>
+      <div class="cell-value"><code>reports/YYYY-MM-DD_owner-repo_type.html</code><br>Auto-pushed to github.com/kodexArg/qa-reports</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Cloned repos</div>
+      <div class="cell-value"><code>github-repositories/repo-name/</code> — entirely gitignored. Pull latest before each run.</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Python scripts</div>
+      <div class="cell-value">Stored in <code>scripts/</code>. Run with <code>uv run</code>. Inline dependencies, no requirements.txt needed.</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Finding IDs</div>
+      <div class="cell-value">S-xx Security · A-xx A11y · P-xx Perf · E-xx SEO · C-xx Code · FN-xx Functional · D-xx Deps · R-xx Compliance · O-xx Ops · FW-xx Framework</div>
+    </div>
+    <div class="info-cell">
+      <div class="cell-label">Language rule</div>
+      <div class="cell-value">All outputs (reports, code comments, conversation) are in English regardless of input language. Non-negotiable.</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════════════ -->
+<footer class="doc-footer">
+  <div>
+    <strong>QA Workspace</strong> — Internal Reference<br>
+    Generated 2026-03-01 · Gabriel Cavedal
+  </div>
+  <div style="text-align: right">
+    Repo: kodexArg/QA &nbsp;·&nbsp; Reports: kodexArg/qa-reports<br>
+    Powered by Claude Code QA Agent
+  </div>
+</footer>
+
+</div><!-- .page -->
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#eef6fa',
+      primaryTextColor: '#1a1a1a',
+      primaryBorderColor: '#2e86ab',
+      lineColor: '#999',
+      secondaryColor: '#fafaf8',
+      tertiaryColor: '#f0faf4',
+      fontFamily: "'DM Mono', 'JetBrains Mono', monospace",
+      fontSize: '13px',
+    },
+    flowchart: {
+      curve: 'basis',
+      padding: 20,
+    },
+    sequence: {
+      actorMargin: 80,
+      noteMargin: 10,
+      messageMargin: 40,
+    }
+  });
+</script>
+</body>
+</html>

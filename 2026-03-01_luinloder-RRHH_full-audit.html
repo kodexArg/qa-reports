@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Report — RRHH AMA — 2026-03-01</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --white: #ffffff;
+  --paper: #fafaf8;
+  --ink: #1a1a1a;
+  --ink-light: #555;
+  --ink-faint: #999;
+  --ink-ghost: #ccc;
+  --rule: #e8e6e1;
+  --rule-dark: #d0cdc6;
+  --critical: #c0392b;
+  --critical-surface: #fdf0ef;
+  --high: #d35400;
+  --high-surface: #fef5ec;
+  --medium: #b7950b;
+  --medium-surface: #fefcf0;
+  --low: #27ae60;
+  --low-surface: #f0faf4;
+  --pass: #2e86ab;
+  --pass-surface: #eef6fa;
+  --verdict-ready: #27ae60;
+  --verdict-reserves: #d4a017;
+  --verdict-not-ready: #c0392b;
+  --font: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'DM Mono', 'JetBrains Mono', monospace;
+  --measure: 72rem;
+  --gap: clamp(1rem, 3vw, 2rem);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--ink); color: var(--white); }
+a { color: var(--ink); text-underline-offset: 3px; }
+a:hover { color: var(--ink-light); }
+
+.page {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+.report-header {
+  padding: 4rem 0 3rem;
+  border-bottom: 2px solid var(--ink);
+}
+
+.report-header .eyebrow {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1.5rem;
+}
+
+.report-header h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.report-header .subtitle {
+  font-size: 1.15rem;
+  font-weight: 300;
+  color: var(--ink-light);
+  max-width: 40ch;
+}
+
+.report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem 3rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.85rem;
+}
+
+.report-meta div { min-width: 160px; }
+
+.report-meta dt {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.35rem;
+}
+
+.report-meta dd { color: var(--ink-light); }
+.report-meta dd a { color: var(--ink-light); }
+
+.scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 3rem 0;
+}
+
+.score-cell {
+  background: var(--white);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+
+.score-cell .number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.score-cell .label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.4rem;
+}
+
+.score-cell .bar {
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 0.75rem;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.score-cell .bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+.severity-strip {
+  display: flex;
+  gap: 0;
+  margin: 0 0 3rem;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.severity-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin: -2rem 0 3rem;
+  font-size: 0.78rem;
+  color: var(--ink-light);
+}
+
+.severity-legend span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.severity-legend .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.audit-section {
+  padding: 3rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.audit-section:first-of-type { border-top: 2px solid var(--ink); }
+
+.section-title {
+  font-size: 0.68rem;
+  font-family: var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.35rem;
+}
+
+.section-heading {
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+
+.finding {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--rule);
+  background: var(--white);
+}
+
+.finding[data-severity="critical"] { border-left-color: var(--critical); background: var(--critical-surface); }
+.finding[data-severity="high"] { border-left-color: var(--high); background: var(--high-surface); }
+.finding[data-severity="medium"] { border-left-color: var(--medium); background: var(--medium-surface); }
+.finding[data-severity="low"] { border-left-color: var(--low); background: var(--low-surface); }
+
+.finding-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.finding-id {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+
+.finding-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.finding-location {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.badge-critical { background: var(--critical); color: var(--white); }
+.badge-high { background: var(--high); color: var(--white); }
+.badge-medium { background: var(--medium); color: var(--white); }
+.badge-low { background: var(--low); color: var(--white); }
+.badge-pass { background: var(--pass); color: var(--white); }
+
+.finding-body {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+}
+
+.finding-body p { margin-bottom: 0.6rem; }
+.finding-body p:last-child { margin-bottom: 0; }
+.finding-body strong { color: var(--ink); font-weight: 600; }
+.finding-body ul, .finding-body ol { padding-left: 1.25rem; margin: 0.5rem 0; }
+.finding-body li { margin-bottom: 0.25rem; }
+
+pre {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  background: var(--paper);
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--ink);
+  white-space: nowrap;
+}
+
+td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.strengths-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.strength {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.strength::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.85rem;
+  width: 8px;
+  height: 2px;
+  background: var(--pass);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 1.5rem 0;
+}
+
+.metric {
+  background: var(--white);
+  padding: 1rem;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.metric-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.15rem;
+}
+
+.metric-note {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  margin-top: 0.25rem;
+}
+
+.verdict {
+  text-align: center;
+  padding: 3rem 2rem;
+  margin: 1rem 0 0;
+  border: 2px solid var(--rule);
+  background: var(--white);
+}
+
+.verdict-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1rem;
+}
+
+.verdict-value {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.verdict-ready .verdict-value { color: var(--verdict-ready); }
+.verdict-ready { border-color: var(--verdict-ready); }
+.verdict-reserves .verdict-value { color: var(--verdict-reserves); }
+.verdict-reserves { border-color: var(--verdict-reserves); }
+.verdict-not-ready .verdict-value { color: var(--verdict-not-ready); }
+.verdict-not-ready { border-color: var(--verdict-not-ready); }
+
+.verdict-note {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  max-width: 55ch;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.action-tier { margin-bottom: 2rem; }
+
+.action-tier-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-tier ol { list-style: none; counter-reset: action; padding: 0; }
+
+.action-tier li {
+  counter-increment: action;
+  padding: 0.5rem 0 0.5rem 2.5rem;
+  position: relative;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.action-tier li:last-child { border-bottom: none; }
+
+.action-tier li::before {
+  content: counter(action, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  position: absolute;
+  left: 0;
+  top: 0.6rem;
+}
+
+.action-meta {
+  display: inline-flex;
+  gap: 0.4rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.action-meta .badge {
+  font-size: 0.55rem;
+  padding: 0.1rem 0.4rem;
+  background: var(--paper);
+  color: var(--ink-light);
+  border: 1px solid var(--rule);
+}
+
+.action-meta .badge-high { background: var(--high-surface); color: var(--high); border-color: var(--high); }
+.action-meta .badge-medium { background: var(--medium-surface); color: var(--medium); border-color: var(--medium); }
+.action-meta .badge-low { background: var(--low-surface); color: var(--low); border-color: var(--low); }
+
+.methodology {
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  line-height: 1.7;
+}
+
+.methodology-title {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  margin-bottom: 0.4rem;
+}
+
+.report-footer {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.report-footer a { color: var(--ink-faint); }
+
+.spacer { height: 2rem; }
+.spacer-lg { height: 4rem; }
+
+@media print {
+  body { background: white; }
+  .page { max-width: none; padding: 0; }
+  .finding { break-inside: avoid; }
+  .audit-section { break-before: auto; }
+  .verdict { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<header class="report-header">
+  <p class="eyebrow">Quality Assurance Report</p>
+  <h1>RRHH AMA</h1>
+  <p class="subtitle">HR Management System for Anesthesiology Department &mdash; Full Audit</p>
+
+  <dl class="report-meta">
+    <div><dt>Date</dt>
+    <dd>2026-03-01</dd></div>
+    <div><dt>Target</dt>
+    <dd><a href="https://rrhh-puce.vercel.app/">rrhh-puce.vercel.app</a></dd></div>
+    <div><dt>Repository</dt>
+    <dd><a href="https://github.com/luinloder/RRHH">luinloder/RRHH</a></dd></div>
+    <div><dt>Auditor</dt>
+    <dd>Gabriel Cavedal</dd></div>
+    <div><dt>Scope</dt>
+    <dd>Security, Accessibility, Performance, SEO, Code Quality, Functionality, Dependencies, Compliance, Operations, Framework</dd></div>
+    <div><dt>Stack</dt>
+    <dd>Astro 5.18 + Supabase + AlpineJS + Tailwind CSS 3, deployed on Vercel</dd></div>
+  </dl>
+</header>
+
+<!-- SCORES -->
+<div class="scores">
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">8.3</div>
+    <div class="label">Security</div>
+    <div class="bar"><div class="bar-fill" style="width: 83%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--critical)">1.7</div>
+    <div class="label">Accessibility</div>
+    <div class="bar"><div class="bar-fill" style="width: 17%; background: var(--critical)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">7.9</div>
+    <div class="label">Performance</div>
+    <div class="bar"><div class="bar-fill" style="width: 79%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">9.1</div>
+    <div class="label">SEO</div>
+    <div class="bar"><div class="bar-fill" style="width: 91%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">7.6</div>
+    <div class="label">Code Quality</div>
+    <div class="bar"><div class="bar-fill" style="width: 76%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--medium)">5.6</div>
+    <div class="label">Functionality</div>
+    <div class="bar"><div class="bar-fill" style="width: 56%; background: var(--medium)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--medium)">6.6</div>
+    <div class="label">Dependencies</div>
+    <div class="bar"><div class="bar-fill" style="width: 66%; background: var(--medium)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">8.5</div>
+    <div class="label">Compliance</div>
+    <div class="bar"><div class="bar-fill" style="width: 85%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">8.3</div>
+    <div class="label">Operations</div>
+    <div class="bar"><div class="bar-fill" style="width: 83%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">8.4</div>
+    <div class="label">Framework</div>
+    <div class="bar"><div class="bar-fill" style="width: 84%; background: var(--pass)"></div></div>
+  </div>
+</div>
+
+<!-- Severity distribution bar -->
+<div class="severity-strip">
+  <div style="flex: 1; background: var(--critical)"></div>
+  <div style="flex: 8; background: var(--high)"></div>
+  <div style="flex: 34; background: var(--medium)"></div>
+  <div style="flex: 44; background: var(--low)"></div>
+</div>
+<div class="severity-legend">
+  <span><span class="dot" style="background: var(--critical)"></span> 1 Critical</span>
+  <span><span class="dot" style="background: var(--high)"></span> 8 High</span>
+  <span><span class="dot" style="background: var(--medium)"></span> 34 Medium</span>
+  <span><span class="dot" style="background: var(--low)"></span> 44 Low</span>
+  <span style="color: var(--ink-faint); margin-left: auto">87 findings</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 01: SECURITY (8.3)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">01 / 10</p>
+  <h2 class="section-heading">Security</h2>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">S-01</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">CSP allows unsafe-inline and unsafe-eval in script-src</span>
+      <span class="finding-location">vercel.json:18</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Weakens XSS protection. <code>unsafe-eval</code> allows <code>eval()</code> and <code>Function()</code> dynamic code execution.</p>
+      <pre>script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net</pre>
+      <p><strong>Remediation:</strong> Use nonce-based CSP for scripts. Use Alpine.js CSP build (<code>alpine.csp.js</code>) to remove <code>unsafe-eval</code>. Remove <code>cdn.jsdelivr.net</code> (unused).</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">S-02</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">supabaseAdmin falls back silently to anon key in non-production</span>
+      <span class="finding-location">lib/supabase.ts:21</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> In dev/staging, admin operations go through RLS, masking authorization bugs that only surface in production.</p>
+      <pre>export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey);</pre>
+      <p><strong>Remediation:</strong> Throw an error in all environments when the service role key is missing.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">S-08</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Rate limiting is in-memory only (resets on cold starts)</span>
+      <span class="finding-location">lib/rate-limit.ts:1-10</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Can be bypassed by waiting for Vercel function recycling or targeting different instances. Only 3 routes are rate-limited.</p>
+      <p><strong>Remediation:</strong> Use Vercel WAF rate limiting or Upstash Redis for persistent rate limiting.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">S-03</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Unused client-side Supabase export in server module</span>
+      <span class="finding-location">lib/supabase.ts:18</span>
+    </div>
+    <div class="finding-body">
+      <p>The anon-key <code>supabase</code> export is created but only <code>supabaseAdmin</code> is imported server-side. Remove or move to a client-only file.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">S-04</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Missing Cross-Origin-Embedder-Policy and Cross-Origin-Resource-Policy headers</span>
+      <span class="finding-location">vercel.json</span>
+    </div>
+    <div class="finding-body">
+      <p>Two cross-origin isolation headers absent. 8/10 security headers present. Grade: B.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">S-07</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">x-html directive in AlpineJS (potential DOM-based XSS vector)</span>
+      <span class="finding-location">residencias/simulador.astro:408</span>
+    </div>
+    <div class="finding-body">
+      <p>Uses <code>x-html</code> to render computed HTML. Currently safe (numeric values only) but fragile to future changes. Prefer <code>x-text</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">S-09</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Email enumeration via /api/auth/check-email endpoint</span>
+      <span class="finding-location">api/auth/check-email.ts:33</span>
+    </div>
+    <div class="finding-body">
+      <p>Returns <code>{ exists: true/false }</code> for any email. Rate-limited (10 req/60s) but allows slow enumeration.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">S-14</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">User deletion cascade is not transactional</span>
+      <span class="finding-location">api/admin/usuarios/eliminar.ts:40-116</span>
+    </div>
+    <div class="finding-body">
+      <p>8+ sequential Supabase operations without a DB transaction. Partial failure leaves inconsistent state. Use a Supabase RPC function.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Comprehensive security headers (HSTS with preload, CSP, X-Frame-Options DENY, COOP)</div>
+    <div class="strength">CSRF protection via Astro's <code>security.checkOrigin: true</code></div>
+    <div class="strength">Uses <code>supabase.auth.getUser()</code> (server-validated) instead of <code>getSession()</code></div>
+    <div class="strength">Role-based access control with impersonation guard (<code>rolReal</code>)</div>
+    <div class="strength">All API routes use Zod schemas via <code>parseFormData()</code></div>
+    <div class="strength">No hardcoded secrets in source code</div>
+    <div class="strength">Open redirect protection in auth callback and referer-based redirects</div>
+    <div class="strength">Audit logging with before/after data on all destructive operations</div>
+    <div class="strength">Cookie security: httpOnly, secure, sameSite, 4hr expiry</div>
+    <div class="strength">Sentry PII scrubbing (email and IP removed from error reports)</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 02: ACCESSIBILITY (1.7)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">02 / 10</p>
+  <h2 class="section-heading">Accessibility</h2>
+
+  <div class="finding" data-severity="critical">
+    <div class="finding-head">
+      <span class="finding-id">A-01</span>
+      <span class="badge badge-critical">Critical</span>
+      <span class="finding-name">97 decorative SVG icons missing aria-hidden="true"</span>
+      <span class="finding-location">25 files across src/</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 1.1.1 Non-text Content (Level A).</strong> Screen readers attempt to parse SVG path data, creating confusing output. All are decorative icons next to text labels.</p>
+      <p><strong>Remediation:</strong> Add <code>aria-hidden="true"</code> to all decorative SVGs. Single regex find/replace operation.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-02</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Duplicate h1 headings on multiple pages</span>
+      <span class="finding-location">BaseLayout.astro:224 + 9 pages</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 1.3.1 (Level A).</strong> BaseLayout renders <code>&lt;h1&gt;</code> in header; several pages add a second <code>&lt;h1&gt;</code> in content area.</p>
+      <p><strong>Remediation:</strong> Change in-page <code>&lt;h1&gt;</code> to <code>&lt;h2&gt;</code>, or change BaseLayout header to a styled <code>&lt;div&gt;</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-03</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">outline: none removes focus indicator on 20+ elements</span>
+      <span class="finding-location">20 files (login, admin, CPO pages)</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 2.4.7 Focus Visible (Level AA).</strong> Despite a global <code>:focus-visible</code> rule with <code>!important</code>, many page-level CSS rules set <code>outline: none</code> on <code>:focus</code>, overriding for assistive tech that triggers <code>:focus</code> but not <code>:focus-visible</code>.</p>
+      <p><strong>Remediation:</strong> Replace <code>:focus { outline: none }</code> with <code>:focus-visible</code> or remove them entirely.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-04</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">User menu button missing aria-expanded and aria-haspopup</span>
+      <span class="finding-location">UserMenu.astro:28</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 4.1.2 (Level A).</strong> Screen reader users cannot know the button opens a dropdown or its current state.</p>
+      <p><strong>Remediation:</strong> Add <code>aria-haspopup="true" :aria-expanded="open" aria-label="User menu"</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A-05</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No aria-live regions for dynamic content / error messages</span>
+      <span class="finding-location">login.astro, registro.astro, multiple</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 4.1.3 Status Messages (Level AA).</strong> Zero <code>aria-live</code> or <code>role="alert"</code> found. Login errors, form success/error callouts, and Alpine reactive updates are invisible to screen readers.</p>
+      <p><strong>Remediation:</strong> Add <code>role="alert"</code> to error containers and <code>aria-live="polite"</code> to success messages.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-06</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Empty alt="" on avatar images in admin panel</span>
+      <span class="finding-location">admin/index.astro:163</span>
+    </div>
+    <div class="finding-body"><p>WCAG 1.1.1. Avatars treated as decorative; acceptable when name is adjacent.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-07</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Missing footer landmark in BaseLayout</span>
+      <span class="finding-location">BaseLayout.astro:212-215</span>
+    </div>
+    <div class="finding-body"><p>WCAG 1.3.1. Sidebar footer uses <code>&lt;div&gt;</code> instead of <code>&lt;footer&gt;</code>.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-08</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Sidebar navigation missing aria-label</span>
+      <span class="finding-location">BaseLayout.astro:85</span>
+    </div>
+    <div class="finding-body"><p>WCAG 1.3.1. Two <code>&lt;nav&gt;</code> elements without distinguishing labels. Add <code>aria-label="Main menu"</code>.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-09</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Cookie banner not accessible as a landmark/dialog</span>
+      <span class="finding-location">CookieBanner.astro, login.astro:432</span>
+    </div>
+    <div class="finding-body"><p>WCAG 2.4.1. Lacks <code>role="dialog"</code>, <code>aria-label</code>, and focus trapping.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A-10</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Aside sidebar missing aria-label</span>
+      <span class="finding-location">BaseLayout.astro:68</span>
+    </div>
+    <div class="finding-body"><p>WCAG 4.1.2. The <code>&lt;aside&gt;</code> landmark needs a label to distinguish it.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A-11</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Mobile menu does not trap focus</span>
+      <span class="finding-location">BaseLayout.astro:274-288</span>
+    </div>
+    <div class="finding-body"><p>WCAG 2.4.3. Focus escapes sidebar overlay on mobile. Use AlpineJS <code>x-trap</code> (already a dependency).</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A-12</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Color contrast concerns in dark theme with opacity modifiers</span>
+      <span class="finding-location">globals.css, DataTable.astro:80</span>
+    </div>
+    <div class="finding-body"><p>WCAG 1.4.3. <code>.table-count</code> uses <code>opacity: 0.6</code> on muted text, reducing contrast below AA.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A-13</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">onchange auto-submit on select elements</span>
+      <span class="finding-location">admin/usuarios.astro:82, 9 other pages</span>
+    </div>
+    <div class="finding-body"><p>WCAG 3.2.2 On Input. Filter selects auto-submit, which is disorienting for screen reader and keyboard users.</p></div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Skip navigation link with proper focus styling</div>
+    <div class="strength">Correct <code>lang="es"</code> on all pages</div>
+    <div class="strength">Login page: proper ARIA tab pattern with roles, aria-selected, aria-controls</div>
+    <div class="strength">All data tables include <code>aria-label</code> and <code>scope="col"</code></div>
+    <div class="strength">Modal uses <code>x-trap.noscroll</code>, <code>role="dialog"</code>, <code>aria-modal</code>, escape key</div>
+    <div class="strength">Form labels properly associated via <code>for/id</code></div>
+    <div class="strength">Global <code>:focus-visible</code> rule with <code>!important</code></div>
+    <div class="strength">Canvas charts include <code>role="img"</code> and <code>aria-label</code></div>
+    <div class="strength">Active nav state with <code>aria-current="page"</code></div>
+    <div class="strength">Combobox pattern in demand assignment autocomplete with proper ARIA</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 03: PERFORMANCE (7.9)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">03 / 10</p>
+  <h2 class="section-heading">Performance</h2>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">~55 ms</div>
+      <div class="metric-label">TTFB (Edge)</div>
+      <div class="metric-note">Vercel challenge page; actual app TTFB depends on SSR + DB queries</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">~100 KB</div>
+      <div class="metric-label">Public Assets</div>
+      <div class="metric-note">Favicons only; SVG-only UI</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">~15 KB</div>
+      <div class="metric-label">AlpineJS (gzip)</div>
+      <div class="metric-note">+ @alpinejs/focus</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">~65 KB</div>
+      <div class="metric-label">Chart.js (gzip)</div>
+      <div class="metric-note">Lazy-loaded on chart pages only</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">0</div>
+      <div class="metric-label">External CDN</div>
+      <div class="metric-note">Everything self-hosted</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">6</div>
+      <div class="metric-label">Font Files</div>
+      <div class="metric-note">~200-300 KB total via @fontsource</div>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">P-01</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No HTTP cache headers for SSR pages</span>
+      <span class="finding-location">astro.config.mjs, vercel.json</span>
+    </div>
+    <div class="finding-body">
+      <p>All pages run full SSR with no <code>Cache-Control</code> headers. Every page load triggers a full server render + Supabase queries. No <code>prerender</code> exports found.</p>
+      <p><strong>Remediation:</strong> Add <code>s-maxage</code> and <code>stale-while-revalidate</code> for semi-static pages. Use <code>prerender = true</code> for legal pages.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">P-02</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Heavy inline scripts on complex pages (up to 70 KB)</span>
+      <span class="finding-location">simulador.astro (900+ lines), CalendarioDDJJ.astro (33 KB)</span>
+    </div>
+    <div class="finding-body">
+      <p><code>is:inline</code> scripts bypass Astro's bundler &mdash; no tree-shaking, no minification, no browser caching. The simulador page alone has 70 KB of inline JS.</p>
+      <p><strong>Remediation:</strong> Extract to external <code>.ts</code> files with standard <code>&lt;script&gt;</code> tags. Pass data via <code>data-*</code> attributes.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">P-03</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Six font files loaded on every page (~200-300 KB)</span>
+      <span class="finding-location">globals.css:2-7</span>
+    </div>
+    <div class="finding-body">
+      <p>All 6 font weight/family files load on every page even when only a subset is used. Login page duplicates 5 imports.</p>
+      <p><strong>Remediation:</strong> Reduce to 2-3 weights. Use <code>font-display: swap</code>. Subset for Latin characters.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">P-07</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Heavy data pages with 7-9 parallel Supabase queries</span>
+      <span class="finding-location">cpo/dashboard.astro:78, cpo/registro.astro:70</span>
+    </div>
+    <div class="finding-body">
+      <p>CPO dashboard executes 7 parallel queries; registro does 9. Good use of <code>Promise.all()</code> but high TTFB impact.</p>
+      <p><strong>Remediation:</strong> Create Supabase DB views or RPC functions to aggregate data server-side.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">P-04</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No prerendering for static legal pages</span>
+    </div>
+    <div class="finding-body"><p>Add <code>export const prerender = true</code> to privacidad.astro and terminos.astro.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">P-06</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Middleware executes 2-3 Supabase queries per authenticated request</span>
+      <span class="finding-location">middleware.ts:66-94</span>
+    </div>
+    <div class="finding-body"><p>Auth check + user profile + optional email fallback. Consider caching user profile in encrypted session cookie.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">P-10</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">CSS animations are no-ops; stagger classes undefined</span>
+      <span class="finding-location">globals.css:536-552</span>
+    </div>
+    <div class="finding-body"><p><code>fadeInUp</code> and <code>slideInLeft</code> both just fade opacity with no positional transform. <code>stagger-*</code> classes have no CSS rules.</p></div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Excellent Supabase query parallelization with <code>Promise.all()</code></div>
+    <div class="strength">Self-hosted fonts via @fontsource (no CDN dependency)</div>
+    <div class="strength">Chart.js lazy loaded via singleton dynamic <code>import()</code></div>
+    <div class="strength">Zero raster images &mdash; SVG-only UI</div>
+    <div class="strength">No external CDN dependencies</div>
+    <div class="strength">Heartbeat write is throttled (60s) and fire-and-forget</div>
+    <div class="strength">Sentry server-side only with 10% sampling</div>
+    <div class="strength">Tailwind purge properly configured</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 04: SEO (9.1)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">04 / 10</p>
+  <h2 class="section-heading">SEO</h2>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">E-09</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Login page missing meta description</span>
+      <span class="finding-location">auth/login.astro</span>
+    </div>
+    <div class="finding-body"><p>The most publicly accessible page has no <code>&lt;meta name="description"&gt;</code>.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">E-01</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No robots.txt file</span>
+    </div>
+    <div class="finding-body"><p>Create <code>public/robots.txt</code> with <code>Disallow: /</code> for this internal app.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">E-05</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No meta name="robots" noindex directive</span>
+    </div>
+    <div class="finding-body"><p>Add <code>&lt;meta name="robots" content="noindex, nofollow" /&gt;</code> to BaseLayout to prevent accidental indexing.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">E-03</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No Open Graph or Twitter Card meta tags</span>
+    </div>
+    <div class="finding-body"><p>Low priority for internal app. Would improve link previews in Slack/Teams.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">E-04</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No canonical URL tags</span>
+    </div>
+    <div class="finding-body"><p>Low priority. Use <code>&lt;link rel="canonical" href={Astro.url.href} /&gt;</code> if needed.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">E-10</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Legal pages use Google Fonts CDN instead of self-hosted</span>
+      <span class="finding-location">legal/privacidad.astro:15-17</span>
+    </div>
+    <div class="finding-body"><p>Inconsistent with main app and a privacy concern (Google receives visitor IP). Use <code>@fontsource/dm-sans</code>.</p></div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Correct <code>lang="es"</code> on all pages</div>
+    <div class="strength">Dynamic titles with consistent branding pattern</div>
+    <div class="strength">Comprehensive favicon set with web manifest</div>
+    <div class="strength">Clean URL structure via Astro file-based routing</div>
+    <div class="strength">Auto-generated breadcrumb navigation</div>
+    <div class="strength">Custom 404 page with user-friendly messaging</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 05: CODE QUALITY (7.6)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">05 / 10</p>
+  <h2 class="section-heading">Code Quality</h2>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Comprehensive Zod schema layer for all API routes</div>
+    <div class="strength">Strict TypeScript config extending <code>astro/tsconfigs/strict</code></div>
+    <div class="strength">No secrets in source code; proper env var usage</div>
+    <div class="strength">Clean separation: lib/ for logic, schemas/ for validation, components/ by domain</div>
+    <div class="strength">Unit tests for core business logic (simulador, timezone, CPO utils)</div>
+    <div class="strength">Domain constants extracted with documentation and legal references</div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-01</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Supabase clients lack Database type parameter</span>
+      <span class="finding-location">lib/supabase.ts:18-21</span>
+    </div>
+    <div class="finding-body">
+      <p>Both <code>createClient</code> calls are untyped despite a generated <code>database.types.ts</code>. All <code>.from()</code> queries return loosely typed results.</p>
+      <pre>// Fix: createClient&lt;Database&gt;(supabaseUrl, supabaseAnonKey)</pre>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-02</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">any types used in 15 locations</span>
+      <span class="finding-location">demanda.astro, residentes.astro, Chart components</span>
+    </div>
+    <div class="finding-body"><p>Most stem from C-01 (untyped Supabase client). Fixing C-01 eliminates the join-related casts.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-03</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Timezone inconsistency &mdash; new Date() used instead of ahoraEnArgentina()</span>
+      <span class="finding-location">demanda-utils.ts:13, mi-residencia-utils.ts (5 locations)</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Latent production bug.</strong> When deployed to a non-Argentina Vercel region, time-sensitive business logic produces incorrect results.</p>
+      <p><strong>Remediation:</strong> Replace all <code>new Date()</code> in business logic with <code>ahoraEnArgentina()</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-04</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Non-null assertion operator (!) on context.locals.usuario</span>
+      <span class="finding-location">5 API routes in api/cpo/</span>
+    </div>
+    <div class="finding-body"><p>Relies on middleware always setting the user. Replace with explicit null check and early return.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">C-05</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">User deletion cascade has no error handling on intermediate steps</span>
+      <span class="finding-location">api/admin/usuarios/eliminar.ts:41-80</span>
+    </div>
+    <div class="finding-body"><p>7 sequential operations with discarded results. Failure leaves inconsistent state.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-06</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Heartbeat fire-and-forget swallows errors silently</span>
+      <span class="finding-location">middleware.ts:114-118</span>
+    </div>
+    <div class="finding-body"><p>Empty <code>.then()</code> with no error handling. Route to Sentry on failure.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-07</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Hardcoded version string v0.5.0 (package.json says 0.1.0)</span>
+      <span class="finding-location">BaseLayout.astro:214</span>
+    </div>
+    <div class="finding-body"><p>Already out of sync. Read from <code>package.json</code> at build time.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-09</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">22 console.error/warn statements instead of Sentry in production</span>
+      <span class="finding-location">informe-utils.ts (5), asignacion-utils.ts (5), admin-utils.ts (2)</span>
+    </div>
+    <div class="finding-body"><p>Only middleware top-level catch sends to Sentry. Create a shared <code>logError()</code> utility.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">C-10</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">TODO: unfinished vacaciones module shows misleading data</span>
+      <span class="finding-location">mi-residencia/vacaciones.astro:22</span>
+    </div>
+    <div class="finding-body"><p>Hardcoded <code>diasUsados = 0</code>. Page is live in production showing zeros for all residents. Gate behind a feature flag or remove from nav.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 06: FUNCTIONALITY (5.6)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">06 / 10</p>
+  <h2 class="section-heading">Functionality</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">FN-01</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Vercel Attack Challenge Mode blocks all non-browser clients</span>
+      <span class="finding-location">Vercel dashboard config</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Every HTTP request returns 403 with <code>x-vercel-mitigated: challenge</code>. Health checks, monitoring tools, CI pipelines, and search crawlers all blocked.</p>
+      <p><strong>Remediation:</strong> Exclude <code>/api/health</code> from Attack Challenge Mode via Vercel Firewall Rules. Evaluate if the WAF needs to be this aggressive for an internal app.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">FN-02</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">User deletion cascade is not atomic (no transaction)</span>
+      <span class="finding-location">api/admin/usuarios/eliminar.ts:38-116</span>
+    </div>
+    <div class="finding-body">
+      <p>8+ sequential Supabase operations without a DB transaction. Partial failure = orphaned/inconsistent records.</p>
+      <p><strong>Remediation:</strong> Use a Supabase RPC stored procedure with <code>BEGIN...COMMIT</code>, or use database-level <code>ON DELETE CASCADE</code> constraints.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FN-04</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">API endpoints use POST redirects with error messages in query params</span>
+      <span class="finding-location">All api/ endpoints, admin-utils.ts:58-76</span>
+    </div>
+    <div class="finding-body"><p>PRG pattern works but error messages in URLs are visible, bookmarkable, and logged. No JSON API for richer interactions.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FN-05</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Rate limiter resets on cold starts (in-memory store)</span>
+      <span class="finding-location">lib/rate-limit.ts:10</span>
+    </div>
+    <div class="finding-body"><p>Code comment acknowledges: "Best-effort: resets on cold starts." Acceptable for low-traffic internal app but should be documented as accepted risk.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FN-06</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Heartbeat throttle uses unbounded in-memory Map</span>
+      <span class="finding-location">middleware.ts:15</span>
+    </div>
+    <div class="finding-body"><p>No cleanup logic. Benign on serverless but leaks on long-running servers.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FN-07</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">innerHTML usage in error handler (minor XSS vector)</span>
+      <span class="finding-location">GraficoDemanda.astro:189</span>
+    </div>
+    <div class="finding-body"><p>Currently injects hardcoded string (safe) but the pattern is risky for future changes. Use <code>textContent</code> + DOM API.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">FN-09</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Detailed Supabase error messages exposed in URL query parameters</span>
+      <span class="finding-location">Multiple api/ endpoints</span>
+    </div>
+    <div class="finding-body"><p>May leak DB schema details. Map errors to user-friendly messages.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">FN-10</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Hardcoded KPI description "4 cohortes / 2 sedes"</span>
+      <span class="finding-location">index.astro:76</span>
+    </div>
+    <div class="finding-body"><p>Becomes misleading if cohort/site count changes. Compute from query results.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">FN-11</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">404 page requires auth (uses BaseLayout)</span>
+      <span class="finding-location">404.astro</span>
+    </div>
+    <div class="finding-body"><p>Unauthenticated users hitting invalid URLs get redirected to login instead of seeing a 404.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">FN-12</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">CPO write route role mismatch between middleware and endpoint</span>
+      <span class="finding-location">middleware.ts:209 vs autoasignar.ts:15</span>
+    </div>
+    <div class="finding-body"><p>Middleware allows <code>['cpo', 'admin']</code> but endpoint also allows <code>'coordinador'</code>. The middleware blocks first, so coordinador is silently denied.</p></div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Comprehensive middleware auth with role-based route protection</div>
+    <div class="strength">Zod schema validation on all API inputs</div>
+    <div class="strength">Role impersonation with safety rails (<code>rolReal</code> for auth)</div>
+    <div class="strength">Open redirect prevention in auth callback</div>
+    <div class="strength">Consistent empty state handling across all views</div>
+    <div class="strength">Ownership enforcement for CPO data</div>
+    <div class="strength">Duplicate detection before DDJJ inserts</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 07: DEPENDENCIES (6.6)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">07 / 10</p>
+  <h2 class="section-heading">Dependency Health</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">D-01</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">path-to-regexp ReDoS vulnerability via @astrojs/vercel</span>
+    </div>
+    <div class="finding-body">
+      <p><code>@astrojs/vercel@^9.0.4</code> depends on <code>@vercel/routing-utils</code> which pulls in vulnerable <code>path-to-regexp</code> versions (4.0.0-6.2.2).</p>
+      <p><strong>Remediation:</strong> Monitor for patched <code>@astrojs/vercel@9.x</code>. Consider npm overrides for <code>@vercel/routing-utils</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">D-03</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Multiple lock files: bun.lock AND package-lock.json coexist</span>
+      <span class="finding-location">app/bun.lock + app/package-lock.json</span>
+    </div>
+    <div class="finding-body">
+      <p>Two lock files = non-deterministic installs depending on which package manager runs. <code>package-lock.json</code> is 2 days older.</p>
+      <p><strong>Remediation:</strong> Choose bun, delete <code>package-lock.json</code>, add <code>packageManager</code> field to <code>package.json</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">D-02</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Lodash prototype pollution via @astrojs/check (dev dependency)</span>
+    </div>
+    <div class="finding-body"><p>Transitive vulnerability through yaml-language-server. Dev-only, no runtime risk.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">D-05</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Uses @sentry/node instead of @sentry/astro</span>
+      <span class="finding-location">package.json</span>
+    </div>
+    <div class="finding-body"><p>Official <code>@sentry/astro</code> provides automatic instrumentation, source maps, and SSR/client error boundaries.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">D-06</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">TailwindCSS v3 in use, v4 available</span>
+    </div>
+    <div class="finding-body"><p>v3.4.19 installed; v4.2.1 available. Not urgent &mdash; v3 still supported.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">D-07</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Zod v3 in use, v4 available</span>
+    </div>
+    <div class="finding-body"><p>v3.25.76 installed; v4.3.6 available with smaller bundle. Breaking API changes; test thoroughly.</p></div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">All key deps at latest versions within major range</div>
+    <div class="strength">Clean dev/production dependency separation</div>
+    <div class="strength">Lean 13-dependency production tree</div>
+    <div class="strength">383/500 packages MIT licensed; no GPL/AGPL</div>
+    <div class="strength">All deps actively used (no phantom dependencies)</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 08: COMPLIANCE (8.5)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">08 / 10</p>
+  <h2 class="section-heading">Compliance &amp; Regulatory</h2>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">R-01</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Cookie consent banner does not block cookies on rejection</span>
+      <span class="finding-location">CookieBanner.astro:26-33</span>
+    </div>
+    <div class="finding-body">
+      <p>Both "Accept" and "Reject" buttons just set localStorage. Auth cookies set regardless. Since only essential cookies are used, remove "Reject" or explain essential cookies cannot be blocked.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">R-05</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No explicit data processing consent at account level</span>
+      <span class="finding-location">auth/login.astro</span>
+    </div>
+    <div class="finding-body">
+      <p>No consent checkbox at first login. ToS states "use constitutes acceptance" (implied consent). For healthcare-adjacent employee data, consider explicit consent with timestamp stored in DB.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">R-07</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No Data Processing Agreement documentation for Supabase</span>
+      <span class="finding-location">legal/privacidad.astro</span>
+    </div>
+    <div class="finding-body">
+      <p>Privacy policy does not name Supabase, Vercel, Sentry, or Google OAuth as data processors. Under Argentine Ley 25.326, processors must be disclosed.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">R-02</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Privacy policy missing controller contact details</span>
+      <span class="finding-location">legal/privacidad.astro:185-186</span>
+    </div>
+    <div class="finding-body"><p>No email, phone, or address for the data controller. Required under Ley 25.326.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">R-03</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Privacy policy loads Google Fonts (IP sent to Google)</span>
+      <span class="finding-location">legal/privacidad.astro:15-17</span>
+    </div>
+    <div class="finding-body"><p>Contradicts privacy claims. Use self-hosted <code>@fontsource</code> like the rest of the app.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">R-08</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Third-party service disclosure incomplete</span>
+    </div>
+    <div class="finding-body"><p>Supabase, Vercel, Sentry (PII scrubbed), Google OAuth not listed in privacy policy.</p></div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Comprehensive audit logging with PII redaction via <code>stripPII()</code></div>
+    <div class="strength">Sentry PII scrubbing (email + IP removed before send)</div>
+    <div class="strength">Data export endpoint for portability (GDPR Art. 20)</div>
+    <div class="strength">Full user deletion cascade for right to erasure</div>
+    <div class="strength">Privacy Policy and ToS exist and are publicly accessible</div>
+    <div class="strength">Zero third-party analytics or tracking scripts</div>
+    <div class="strength">Rate limiting on sensitive endpoints</div>
+    <div class="strength">Argentine jurisdiction correctly identified in ToS</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 09: OPERATIONS (8.3)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">09 / 10</p>
+  <h2 class="section-heading">Operations &amp; CI/CD</h2>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">O-02</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Sentry integration is optional and not enforced in production</span>
+      <span class="finding-location">lib/sentry.ts</span>
+    </div>
+    <div class="finding-body"><p>Configured conditionally with optional DSN. Production could run without error monitoring. Add a startup warning when DSN is missing in prod.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">O-03</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No automated database backup strategy beyond Supabase defaults</span>
+      <span class="finding-location">Docs/OPS-RUNBOOK.md</span>
+    </div>
+    <div class="finding-body"><p>PITR listed as "check quarterly if available." No automated backup verification. No documented RTO/RPO.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">O-09</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Database RLS policies are read-only; all writes bypass RLS</span>
+      <span class="finding-location">supabase/migrations/20260227_activate_rls_policies.sql</span>
+    </div>
+    <div class="finding-body"><p>All writes use <code>supabaseAdmin</code> (service_role). Authorization is application-layer only. If middleware is bypassed, no DB-level write protection exists.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">O-04</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">In-memory rate limiter resets on cold starts</span>
+    </div>
+    <div class="finding-body"><p>Documented and accepted. Consider Upstash Redis for stronger guarantee.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">O-05</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No uptime monitoring service configured</span>
+    </div>
+    <div class="finding-body"><p>Health endpoint exists and works. Set up UptimeRobot or similar.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">O-06</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Emergency contact information is placeholder</span>
+      <span class="finding-location">Docs/OPS-RUNBOOK.md:253-254</span>
+    </div>
+    <div class="finding-body"><p>Admin and coordinator contacts show "(configurar)". Populate before production.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">O-07</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Playwright tests only cover Chromium</span>
+      <span class="finding-location">playwright.config.ts</span>
+    </div>
+    <div class="finding-body"><p>Add Firefox/WebKit if user base includes non-Chromium browsers.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">O-10</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">CI cache key references bun.lockb but lock file is bun.lock</span>
+      <span class="finding-location">.github/workflows/ci.yml:22</span>
+    </div>
+    <div class="finding-body"><p>Cache never hits, causing slower CI builds. Update to <code>bun.lock</code>.</p></div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">5-job CI pipeline: type check, unit tests, build, migration validation, E2E</div>
+    <div class="strength">QA regression workflow with weekly schedule and severity filtering</div>
+    <div class="strength">CODEOWNERS protects security-sensitive files</div>
+    <div class="strength">3-environment separation (prod / preview / local) with separate Supabase projects</div>
+    <div class="strength">Comprehensive OPS runbook with troubleshooting scenarios</div>
+    <div class="strength">Health check endpoint with DB connectivity test</div>
+    <div class="strength">PR template with security checklist</div>
+    <div class="strength">DDJJ snapshots for application-level point-in-time recovery</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 10: FRAMEWORK (8.4)
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">10 / 10</p>
+  <h2 class="section-heading">Framework Best Practices &mdash; Astro 5</h2>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FW-01</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No prerender on static pages (404, legal)</span>
+    </div>
+    <div class="finding-body">
+      <p>All pages server-rendered due to <code>output: 'server'</code>. Static pages should opt in with <code>export const prerender = true</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FW-02</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No Astro View Transitions</span>
+    </div>
+    <div class="finding-body">
+      <p>Full page reloads on every navigation, losing Alpine state and causing layout flicker. Add <code>&lt;ViewTransitions /&gt;</code> to BaseLayout. Test Alpine compatibility with <code>transition:persist</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FW-03</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No Image optimization &mdash; no astro:assets usage</span>
+    </div>
+    <div class="finding-body"><p>External avatar images loaded raw. Use Astro's <code>&lt;Image /&gt;</code> component for format conversion and responsive sizing.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">FW-04</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Large inline Alpine component in CalendarioDDJJ (180 lines)</span>
+      <span class="finding-location">CalendarioDDJJ.astro:288-490</span>
+    </div>
+    <div class="finding-body"><p>Uses <code>is:inline</code> with <code>window</code> global. Move to Alpine entrypoint with <code>Alpine.data()</code>.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">FW-05</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Duplicate path alias configuration (tsconfig + vite)</span>
+      <span class="finding-location">astro.config.mjs:23-29, tsconfig.json:5-10</span>
+    </div>
+    <div class="finding-body"><p>Astro 5 auto-reads tsconfig paths. Remove the Vite alias block.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">FW-06</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Unused Astro Actions export (empty server object)</span>
+      <span class="finding-location">actions/index.ts</span>
+    </div>
+    <div class="finding-body"><p>Remove or migrate some API routes to Astro Actions for type-safe form handling.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">FW-07</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Google Fonts CDN in legal pages instead of self-hosted</span>
+      <span class="finding-location">legal/privacidad.astro:15-17</span>
+    </div>
+    <div class="finding-body"><p>Inconsistent with main app. Use <code>@fontsource/dm-sans</code> already in dependencies.</p></div>
+  </div>
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Proper SSR + Vercel adapter with CSRF protection</div>
+    <div class="strength">Robust middleware with layered auth</div>
+    <div class="strength">AlpineJS integration with custom entrypoint and @alpinejs/focus</div>
+    <div class="strength">Excellent Supabase SSR pattern (two-client architecture)</div>
+    <div class="strength">TypeScript strict mode with Astro-specific type declarations</div>
+    <div class="strength">Well-structured API routes with consistent patterns</div>
+    <div class="strength">Chart.js lazy loading via singleton dynamic import</div>
+    <div class="strength">Clean component architecture organized by domain</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     ALL FINDINGS SUMMARY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Reference</p>
+  <h2 class="section-heading">All Findings</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Severity</th>
+          <th>Category</th>
+          <th>Finding</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>A-01</code></td><td><span class="badge badge-critical">Critical</span></td><td>Accessibility</td><td>97 decorative SVGs missing aria-hidden="true"</td></tr>
+        <tr><td><code>A-02</code></td><td><span class="badge badge-high">High</span></td><td>Accessibility</td><td>Duplicate h1 headings on multiple pages</td></tr>
+        <tr><td><code>A-03</code></td><td><span class="badge badge-high">High</span></td><td>Accessibility</td><td>outline: none removes focus indicator on 20+ elements</td></tr>
+        <tr><td><code>A-04</code></td><td><span class="badge badge-high">High</span></td><td>Accessibility</td><td>User menu button missing aria-expanded/haspopup</td></tr>
+        <tr><td><code>A-05</code></td><td><span class="badge badge-high">High</span></td><td>Accessibility</td><td>No aria-live regions for dynamic content</td></tr>
+        <tr><td><code>FN-01</code></td><td><span class="badge badge-high">High</span></td><td>Functionality</td><td>Vercel Attack Challenge blocks non-browser clients</td></tr>
+        <tr><td><code>FN-02</code></td><td><span class="badge badge-high">High</span></td><td>Functionality</td><td>User deletion cascade not atomic</td></tr>
+        <tr><td><code>D-01</code></td><td><span class="badge badge-high">High</span></td><td>Dependencies</td><td>path-to-regexp ReDoS via @astrojs/vercel</td></tr>
+        <tr><td><code>D-03</code></td><td><span class="badge badge-high">High</span></td><td>Dependencies</td><td>Multiple lock files coexist (bun.lock + package-lock.json)</td></tr>
+        <tr><td><code>S-01</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>CSP allows unsafe-inline and unsafe-eval</td></tr>
+        <tr><td><code>S-02</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>supabaseAdmin falls back to anon key silently</td></tr>
+        <tr><td><code>S-08</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>In-memory rate limiting resets on cold starts</td></tr>
+        <tr><td><code>A-06</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>Empty alt on admin avatars</td></tr>
+        <tr><td><code>A-07</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>Missing footer landmark</td></tr>
+        <tr><td><code>A-08</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>Sidebar nav missing aria-label</td></tr>
+        <tr><td><code>A-09</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>Cookie banner not accessible as dialog</td></tr>
+        <tr><td><code>A-10</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>Aside missing aria-label</td></tr>
+        <tr><td><code>P-01</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>No cache headers for SSR pages</td></tr>
+        <tr><td><code>P-02</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>Heavy inline scripts (up to 70 KB)</td></tr>
+        <tr><td><code>P-03</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>Six font files on every page</td></tr>
+        <tr><td><code>P-07</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>Heavy data pages (7-9 Supabase queries)</td></tr>
+        <tr><td><code>E-09</code></td><td><span class="badge badge-medium">Medium</span></td><td>SEO</td><td>Login page missing meta description</td></tr>
+        <tr><td><code>C-01</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>Supabase clients lack Database type parameter</td></tr>
+        <tr><td><code>C-02</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>any types in 15 locations</td></tr>
+        <tr><td><code>C-03</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>Timezone inconsistency (new Date vs ahoraEnArgentina)</td></tr>
+        <tr><td><code>C-04</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>Non-null assertion on context.locals.usuario</td></tr>
+        <tr><td><code>C-05</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>User deletion cascade lacks error handling</td></tr>
+        <tr><td><code>FN-04</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functionality</td><td>Error messages exposed in URL query params</td></tr>
+        <tr><td><code>FN-05</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functionality</td><td>Rate limiter resets on cold starts</td></tr>
+        <tr><td><code>FN-06</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functionality</td><td>Heartbeat throttle unbounded Map</td></tr>
+        <tr><td><code>FN-07</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functionality</td><td>innerHTML usage in error handler</td></tr>
+        <tr><td><code>D-02</code></td><td><span class="badge badge-medium">Medium</span></td><td>Dependencies</td><td>Lodash prototype pollution (dev only)</td></tr>
+        <tr><td><code>D-04</code></td><td><span class="badge badge-medium">Medium</span></td><td>Dependencies</td><td>Lock file stale</td></tr>
+        <tr><td><code>D-05</code></td><td><span class="badge badge-medium">Medium</span></td><td>Dependencies</td><td>@sentry/node instead of @sentry/astro</td></tr>
+        <tr><td><code>R-01</code></td><td><span class="badge badge-medium">Medium</span></td><td>Compliance</td><td>Cookie reject button is non-functional</td></tr>
+        <tr><td><code>R-05</code></td><td><span class="badge badge-medium">Medium</span></td><td>Compliance</td><td>No explicit data processing consent</td></tr>
+        <tr><td><code>R-07</code></td><td><span class="badge badge-medium">Medium</span></td><td>Compliance</td><td>No DPA documentation for Supabase</td></tr>
+        <tr><td><code>O-02</code></td><td><span class="badge badge-medium">Medium</span></td><td>Operations</td><td>Sentry optional and not enforced</td></tr>
+        <tr><td><code>O-03</code></td><td><span class="badge badge-medium">Medium</span></td><td>Operations</td><td>No automated database backup strategy</td></tr>
+        <tr><td><code>O-09</code></td><td><span class="badge badge-medium">Medium</span></td><td>Operations</td><td>RLS is read-only; all writes bypass RLS</td></tr>
+        <tr><td><code>FW-01</code></td><td><span class="badge badge-medium">Medium</span></td><td>Framework</td><td>No prerender on static pages</td></tr>
+        <tr><td><code>FW-02</code></td><td><span class="badge badge-medium">Medium</span></td><td>Framework</td><td>No View Transitions</td></tr>
+        <tr><td><code>FW-03</code></td><td><span class="badge badge-medium">Medium</span></td><td>Framework</td><td>No astro:assets image optimization</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size: 0.78rem; color: var(--ink-faint); margin-top: 0.75rem">+ 44 Low findings across all categories (see detailed sections above)</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     LAUNCH VERDICT
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Verdict</p>
+  <h2 class="section-heading">Launch Readiness</h2>
+
+  <div class="verdict verdict-not-ready">
+    <p class="verdict-label">Launch Verdict</p>
+    <p class="verdict-value">NOT READY</p>
+    <p class="verdict-note">Overall score 6.6/10. 1 Critical finding (A-01: 97 SVGs missing aria-hidden) blocks launch. Accessibility score (1.7) is critically low. 8 High-severity findings require remediation timelines. The Critical finding is fixable with a single regex find/replace &mdash; once resolved and High findings are addressed, the app qualifies for READY WITH RESERVES.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     ACTION PLAN
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Recommendations</p>
+  <h2 class="section-heading">Priority Action Plan</h2>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-critical">Immediate</span> Do now</div>
+    <ol>
+      <li><strong>Add aria-hidden="true" to all 97 decorative SVGs</strong> &mdash; single regex find/replace across 25 files (A-01) <span class="action-meta"><span class="badge">~30min</span><span class="badge badge-high">Critical Fix</span></span></li>
+      <li><strong>Add aria-expanded, aria-haspopup to UserMenu button</strong> &mdash; 1-line fix (A-04) <span class="action-meta"><span class="badge">~5min</span><span class="badge badge-high">Quick Win</span></span></li>
+      <li><strong>Add role="alert" to error message containers</strong> &mdash; login + form callouts (A-05) <span class="action-meta"><span class="badge">~30min</span><span class="badge badge-high">A11y Fix</span></span></li>
+      <li><strong>Add aria-label to sidebar nav and aside</strong> &mdash; 2-line fix in BaseLayout (A-08, A-10) <span class="action-meta"><span class="badge">~5min</span><span class="badge badge-medium">Quick Win</span></span></li>
+      <li><strong>Delete package-lock.json</strong> &mdash; choose bun as sole package manager (D-03) <span class="action-meta"><span class="badge">~5min</span><span class="badge badge-high">Quick Win</span></span></li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-high">Short-term</span> This sprint</div>
+    <ol>
+      <li><strong>Replace :focus { outline: none } with :focus-visible across 20 files</strong> (A-03) <span class="action-meta"><span class="badge">~2h</span><span class="badge badge-high">A11y</span></span></li>
+      <li><strong>Fix duplicate h1 headings</strong> &mdash; change in-page h1 to h2 on 9 pages (A-02) <span class="action-meta"><span class="badge">~1h</span><span class="badge badge-high">A11y</span></span></li>
+      <li><strong>Wrap user deletion in Supabase RPC transaction</strong> (FN-02, C-05, S-14) <span class="action-meta"><span class="badge">~3h</span><span class="badge badge-high">Data Integrity</span></span></li>
+      <li><strong>Exclude /api/health from Vercel Attack Challenge</strong> (FN-01) <span class="action-meta"><span class="badge">~15min</span><span class="badge badge-high">Operations</span></span></li>
+      <li><strong>Replace new Date() with ahoraEnArgentina() in 6 locations</strong> (C-03) <span class="action-meta"><span class="badge">~30min</span><span class="badge badge-medium">Latent Bug</span></span></li>
+      <li><strong>Type Supabase clients with Database generic</strong> (C-01) <span class="action-meta"><span class="badge">~1h</span><span class="badge badge-medium">Type Safety</span></span></li>
+      <li><strong>Replace Google Fonts CDN with @fontsource in legal pages</strong> (R-03, FW-07, E-10) <span class="action-meta"><span class="badge">~15min</span><span class="badge badge-low">Privacy</span></span></li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-medium">Medium-term</span> Next sprint</div>
+    <ol>
+      <li><strong>Harden CSP</strong> &mdash; use Alpine CSP build, nonce-based scripts, remove cdn.jsdelivr.net (S-01) <span class="action-meta"><span class="badge">~4h</span><span class="badge badge-medium">Security</span></span></li>
+      <li><strong>Add prerender = true to static pages</strong> (FW-01, P-04) <span class="action-meta"><span class="badge">~15min</span><span class="badge badge-medium">Performance</span></span></li>
+      <li><strong>Extract large inline scripts to bundled .ts files</strong> (P-02, FW-04) <span class="action-meta"><span class="badge">~4h</span><span class="badge badge-medium">Performance</span></span></li>
+      <li><strong>Update privacy policy</strong> &mdash; add processor disclosure, contact info, encryption at rest (R-02, R-07, R-08) <span class="action-meta"><span class="badge">~2h</span><span class="badge badge-medium">Compliance</span></span></li>
+      <li><strong>Add cookie banner dialog role and fix reject button UX</strong> (A-09, R-01) <span class="action-meta"><span class="badge">~1h</span><span class="badge badge-medium">A11y+Compliance</span></span></li>
+      <li><strong>Set up uptime monitoring</strong> (O-05) <span class="action-meta"><span class="badge">~30min</span><span class="badge badge-low">Operations</span></span></li>
+      <li><strong>Make Sentry DSN required in production</strong> (O-02) <span class="action-meta"><span class="badge">~15min</span><span class="badge badge-medium">Monitoring</span></span></li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-low">Backlog</span> Low priority</div>
+    <ol>
+      <li><strong>Evaluate Astro View Transitions</strong> (FW-02) &mdash; test Alpine compatibility</li>
+      <li><strong>Migrate to @sentry/astro</strong> (D-05) &mdash; automatic instrumentation</li>
+      <li><strong>Add Upstash Redis rate limiting</strong> (S-08, FN-05) &mdash; persistent across cold starts</li>
+      <li><strong>Create Supabase DB views/RPCs</strong> for heavy data pages (P-07) &mdash; reduce query count</li>
+      <li><strong>Cache user profile in session cookie</strong> (P-06) &mdash; reduce middleware DB calls</li>
+      <li><strong>Implement vacaciones module or gate it</strong> (C-10) &mdash; currently shows misleading zeros</li>
+      <li><strong>Add RLS write policies for defense-in-depth</strong> (O-09)</li>
+      <li><strong>Plan TailwindCSS v4 migration</strong> (D-06)</li>
+      <li><strong>Fix CI cache key</strong> bun.lockb &rarr; bun.lock (O-10)</li>
+      <li><strong>Remove duplicate Vite alias config</strong> (FW-05)</li>
+    </ol>
+  </div>
+</section>
+
+<!-- SCORING METHODOLOGY -->
+<div class="methodology">
+  <p class="methodology-title">Scoring Methodology</p>
+  <p>Scoring: 10 &minus; (Critical &times; 2.0 + High &times; 1.0 + Medium &times; 0.4 + Low &times; 0.1). Overall: weighted average (Security 25%, Accessibility 20%, Performance 15%, Code Quality 15%, Functionality 15%, SEO 10%). Verdict: READY (&ge;8.0, 0 Critical), RESERVES (6.0&ndash;7.9, 0 Critical), NOT READY (&lt;6.0 or Critical exists). Note: FN-03 (CSRF) excluded as false positive &mdash; Astro's <code>security.checkOrigin</code> provides framework-level CSRF protection.</p>
+</div>
+
+<!-- FOOTER -->
+<footer class="report-footer">
+  <div>
+    <strong>Gabriel Cavedal</strong> &mdash; QA Report<br>
+    Generated 2026-03-01 with Claude Code QA Agent
+  </div>
+  <div style="text-align: right">
+    Tools: httpx, BeautifulSoup, agent-browser, source code analysis<br>
+    <a href="https://rrhh-puce.vercel.app/">rrhh-puce.vercel.app</a>
+  </div>
+</footer>
+
+</div><!-- .page -->
+</body>
+</html>

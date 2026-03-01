@@ -676,9 +676,9 @@ td {
   <div class="bar"><div class="bar-fill" style="width: 79%; background: var(--pass)"></div></div>
 </div>
 <div class="score-cell">
-  <div class="number" style="color: var(--medium)">6.5</div>
+  <div class="number" style="color: var(--medium)">6.0</div>
   <div class="label">Functionality</div>
-  <div class="bar"><div class="bar-fill" style="width: 65%; background: var(--medium)"></div></div>
+  <div class="bar"><div class="bar-fill" style="width: 60%; background: var(--medium)"></div></div>
 </div>
 <div class="score-cell">
   <div class="number" style="color: var(--pass)">7.1</div>
@@ -707,15 +707,15 @@ td {
   <!-- widths should sum to 100%, proportional to finding counts -->
   <div style="flex: 1; background: var(--critical)"></div>
   <div style="flex: 12; background: var(--high)"></div>
-  <div style="flex: 43; background: var(--medium)"></div>
-  <div style="flex: 50; background: var(--low)"></div>
+  <div style="flex: 44; background: var(--medium)"></div>
+  <div style="flex: 51; background: var(--low)"></div>
 </div>
 <div class="severity-legend">
   <span><span class="dot" style="background: var(--critical)"></span> 1 Critical</span>
   <span><span class="dot" style="background: var(--high)"></span> 12 High</span>
-  <span><span class="dot" style="background: var(--medium)"></span> 43 Medium</span>
-  <span><span class="dot" style="background: var(--low)"></span> 50 Low</span>
-  <span style="color: var(--ink-faint); margin-left: auto">106 findings</span>
+  <span><span class="dot" style="background: var(--medium)"></span> 44 Medium</span>
+  <span><span class="dot" style="background: var(--low)"></span> 51 Low</span>
+  <span style="color: var(--ink-faint); margin-left: auto">108 findings</span>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
@@ -1701,6 +1701,36 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);   //
 <p>---</p>
   </div>
 </div>
+<div class="finding" data-severity="medium">
+  <div class="finding-head">
+    <span class="finding-id">FN-12</span>
+    <span class="badge badge-medium">Medium</span>
+    <span class="finding-name">Two routes return 404 on direct URL access</span>
+    <span class="finding-location">Sidebar navigation vs direct URL access</span>
+  </div>
+  <div class="finding-body">
+    <p><strong>Location:</strong> Sidebar navigation vs direct URL access</p>
+<p><strong>Evidence (browser smoke test):</strong></p>
+<ul><li><code>/cpo/profesionales</code> → 404 when accessed directly; works via sidebar click</li><li><code>/mi-residencia/dashboard</code> → 404 when accessed directly; works via sidebar click</li></ul>
+<p>Sidebar links point to routes that don&#x27;t match Astro&#x27;s file-based routing paths. Users who bookmark or share these URLs will get a broken page.</p>
+<p><strong>Remediation:</strong> Verify sidebar href values match actual file-based route paths, or add redirect rules.</p>
+<p>---</p>
+  </div>
+</div>
+<div class="finding" data-severity="low">
+  <div class="finding-head">
+    <span class="finding-id">FN-13</span>
+    <span class="badge badge-low">Low</span>
+    <span class="finding-name">CPO Profesionales shows &quot;0 Profesionales Activos&quot; despite 47 total</span>
+    <span class="finding-location">CPO Profesionales page (browser observation)</span>
+  </div>
+  <div class="finding-body">
+    <p><strong>Location:</strong> CPO Profesionales page (browser observation)</p>
+<p>Dashboard KPI shows 47 CPO professionals, but the Profesionales page shows &quot;0 Profesionales Activos.&quot; May be a legitimate filter state (DDJJ window open, no active submissions) or a query bug.</p>
+<p><strong>Remediation:</strong> Investigate whether &quot;0 Activos&quot; is correct given current DDJJ state, or add clarifying text.</p>
+<p>---</p>
+  </div>
+</div>
 <div class="finding" data-severity="low">
   <div class="finding-head">
     <span class="finding-id">FN-05</span>
@@ -1771,6 +1801,10 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);   //
 <div class="strength">View-as-role impersonation has proper safeguards (real role used for auth, impersonated role for UI only)</div>
 <div class="strength">Impersonation cookie is httpOnly, secure, SameSite=lax, auto-expires after 4 hours</div>
 <div class="strength">Legal/privacy pages are publicly accessible (no auth required)</div>
+<div class="strength">All 12 tested pages load correctly when navigated via sidebar (auth session stable)</div>
+<div class="strength">Chart.js visualizations render without errors across all dashboard pages</div>
+<div class="strength">Admin panel, user management, and hospital management all functional</div>
+<div class="strength">No JavaScript console errors observed during navigation</div>
   </div>
 </section>
 
@@ -2586,6 +2620,7 @@ export default (Alpine: Alpine) =&gt; { Alpine.plugin(focus); };</pre>
 <tr><td><code>FN-04</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functionality</td><td>No double-submit protection on admin forms</td><td style="font-family: var(--mono); font-size: 0.75rem">admin/hospitales.astro:91</td></tr>
 <tr><td><code>FN-07</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functionality</td><td>API routes return 302 redirect instead of 401 JSON</td><td style="font-family: var(--mono); font-size: 0.75rem">middleware.ts:71</td></tr>
 <tr><td><code>FN-08</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functionality</td><td>Destructive user deletion without server-side safeguard</td><td style="font-family: var(--mono); font-size: 0.75rem">app/src/pages/api/admin/usuarios/eliminar.ts:38-117</td></tr>
+<tr><td><code>FN-12</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functionality</td><td>Two routes return 404 on direct URL access</td><td style="font-family: var(--mono); font-size: 0.75rem">Sidebar navigation vs direct URL access</td></tr>
 <tr><td><code>D-02</code></td><td><span class="badge badge-medium">Medium</span></td><td>Dependencies</td><td>lodash Prototype Pollution (dev-only)</td><td style="font-family: var(--mono); font-size: 0.75rem"></td></tr>
 <tr><td><code>D-03</code></td><td><span class="badge badge-medium">Medium</span></td><td>Dependencies</td><td>Stale root-level bun.lock with orphaned xlsx</td><td style="font-family: var(--mono); font-size: 0.75rem">/RRHH/bun.lock</td></tr>
 <tr><td><code>D-04</code></td><td><span class="badge badge-medium">Medium</span></td><td>Dependencies</td><td>Dual lock files in app directory</td><td style="font-family: var(--mono); font-size: 0.75rem"></td></tr>
@@ -2631,6 +2666,7 @@ export default (Alpine: Alpine) =&gt; { Alpine.plugin(focus); };</pre>
 <tr><td><code>C-07</code></td><td><span class="badge badge-low">Low</span></td><td>Code Quality</td><td>`as unknown as` type assertions for Supabase joins</td><td style="font-family: var(--mono); font-size: 0.75rem">informe-utils.ts:343,479,497,565,571</td></tr>
 <tr><td><code>C-08</code></td><td><span class="badge badge-low">Low</span></td><td>Code Quality</td><td>Metric functions silently return zeros on failure</td><td style="font-family: var(--mono); font-size: 0.75rem">informe-utils.ts:418-427,532-538,614-621,678-687</td></tr>
 <tr><td><code>C-09</code></td><td><span class="badge badge-low">Low</span></td><td>Code Quality</td><td>22+ console.error statements in production code</td><td style="font-family: var(--mono); font-size: 0.75rem">22 files across codebase</td></tr>
+<tr><td><code>FN-13</code></td><td><span class="badge badge-low">Low</span></td><td>Functionality</td><td>CPO Profesionales shows &quot;0 Profesionales Activos&quot; despite 47 total</td><td style="font-family: var(--mono); font-size: 0.75rem">CPO Profesionales page (browser observation)</td></tr>
 <tr><td><code>FN-05</code></td><td><span class="badge badge-low">Low</span></td><td>Functionality</td><td>No server-side input length limits</td><td style="font-family: var(--mono); font-size: 0.75rem">app/src/lib/schemas/shared.ts:6-7</td></tr>
 <tr><td><code>FN-06</code></td><td><span class="badge badge-low">Low</span></td><td>Functionality</td><td>Missing robots.txt</td><td style="font-family: var(--mono); font-size: 0.75rem"></td></tr>
 <tr><td><code>FN-09</code></td><td><span class="badge badge-low">Low</span></td><td>Functionality</td><td>Rate limiting in-memory only</td><td style="font-family: var(--mono); font-size: 0.75rem"></td></tr>
@@ -2733,7 +2769,7 @@ export default (Alpine: Alpine) =&gt; { Alpine.plugin(focus); };</pre>
     <div class="action-tier-label"><span class="badge badge-medium">Medium-term</span> Next sprint</div>
     <ol>
       <li>Accessibility Medium fixes: A-08, A-09, A-11, A-16, A-19, A-20</li>
-<li>Functional fixes: FN-01, FN-03, FN-04, FN-07, FN-08</li>
+<li>Functional fixes: FN-01, FN-03, FN-04, FN-07, FN-08, FN-12</li>
 <li>Operations: O-03 security scanning, O-06 Sentry coverage, O-09 uptime monitoring</li>
 <li>Compliance: R-08 data retention, R-11 self-service deletion, R-15 DPAs</li>
 <li>Dependencies: D-03/D-04 clean up lock files</li>

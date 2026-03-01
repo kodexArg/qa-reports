@@ -31,6 +31,10 @@
   --pass: #2e86ab;
   --pass-surface: #eef6fa;
 
+  --verdict-ready: #27ae60;
+  --verdict-reserves: #d4a017;
+  --verdict-not-ready: #c0392b;
+
   --font: 'Space Grotesk', system-ui, sans-serif;
   --mono: 'DM Mono', 'JetBrains Mono', monospace;
 
@@ -436,6 +440,51 @@ td {
 }
 
 /* ═══════════════════════════════════════════════════
+   VERDICT
+   ═══════════════════════════════════════════════════ */
+.verdict {
+  text-align: center;
+  padding: 3rem 2rem;
+  margin: 1rem 0 0;
+  border: 2px solid var(--rule);
+  background: var(--white);
+}
+
+.verdict-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1rem;
+}
+
+.verdict-value {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.verdict-ready .verdict-value { color: var(--verdict-ready); }
+.verdict-ready { border-color: var(--verdict-ready); }
+
+.verdict-reserves .verdict-value { color: var(--verdict-reserves); }
+.verdict-reserves { border-color: var(--verdict-reserves); }
+
+.verdict-not-ready .verdict-value { color: var(--verdict-not-ready); }
+.verdict-not-ready { border-color: var(--verdict-not-ready); }
+
+.verdict-note {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  max-width: 55ch;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════
    ACTION PLAN
    ═══════════════════════════════════════════════════ */
 .action-tier {
@@ -480,6 +529,61 @@ td {
   top: 0.6rem;
 }
 
+.action-meta {
+  display: inline-flex;
+  gap: 0.4rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.action-meta .badge {
+  font-size: 0.55rem;
+  padding: 0.1rem 0.4rem;
+  background: var(--paper);
+  color: var(--ink-light);
+  border: 1px solid var(--rule);
+}
+
+.action-meta .badge-high {
+  background: var(--high-surface);
+  color: var(--high);
+  border-color: var(--high);
+}
+
+.action-meta .badge-medium {
+  background: var(--medium-surface);
+  color: var(--medium);
+  border-color: var(--medium);
+}
+
+.action-meta .badge-low {
+  background: var(--low-surface);
+  color: var(--low);
+  border-color: var(--low);
+}
+
+/* ═══════════════════════════════════════════════════
+   METHODOLOGY FOOTNOTE
+   ═══════════════════════════════════════════════════ */
+.methodology {
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  line-height: 1.7;
+}
+
+.methodology-title {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  margin-bottom: 0.4rem;
+}
+
 /* ═══════════════════════════════════════════════════
    FOOTER
    ═══════════════════════════════════════════════════ */
@@ -511,6 +615,7 @@ td {
   .page { max-width: none; padding: 0; }
   .finding { break-inside: avoid; }
   .audit-section { break-before: auto; }
+  .verdict { break-inside: avoid; }
 }
 </style>
 </head>
@@ -535,7 +640,7 @@ td {
     <div><dt>Auditor</dt>
     <dd>Gabriel Cavedal</dd></div>
     <div><dt>Scope</dt>
-    <dd>Security, Accessibility, Performance, SEO, Code Quality, Functionality</dd></div>
+    <dd>Security, Accessibility, Performance, SEO, Code Quality, Functionality, Dependencies, Compliance, Operations, Framework</dd></div>
     <div><dt>Stack</dt>
     <dd>{{TECH_STACK}}</dd></div>
   </dl>
@@ -581,6 +686,26 @@ td {
     <div class="label">Functionality</div>
     <div class="bar"><div class="bar-fill" style="width: {{SCORE_FUNCTIONALITY_PCT}}%; background: var(--pass)"></div></div>
   </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">{{SCORE_DEPENDENCIES}}</div>
+    <div class="label">Dependencies</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_DEPENDENCIES_PCT}}%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">{{SCORE_COMPLIANCE}}</div>
+    <div class="label">Compliance</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_COMPLIANCE_PCT}}%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">{{SCORE_OPERATIONS}}</div>
+    <div class="label">Operations</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_OPERATIONS_PCT}}%; background: var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color: var(--pass)">{{SCORE_FRAMEWORK}}</div>
+    <div class="label">Framework</div>
+    <div class="bar"><div class="bar-fill" style="width: {{SCORE_FRAMEWORK_PCT}}%; background: var(--pass)"></div></div>
+  </div>
 </div>
 
 <!-- Severity distribution bar -->
@@ -600,10 +725,10 @@ td {
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     SECTION: SECURITY
+     SECTION 01: SECURITY
      ═══════════════════════════════════════════════════ -->
 <section class="audit-section">
-  <p class="section-title">01 / 06</p>
+  <p class="section-title">01 / 10</p>
   <h2 class="section-heading">Security</h2>
 
   <!-- Repeat .finding blocks per finding, ordered by severity (critical first) -->
@@ -629,23 +754,33 @@ td {
   -->
 
   <!-- {{FINDINGS_SECURITY}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_SECURITY}} -->
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════
-     SECTION: ACCESSIBILITY
+     SECTION 02: ACCESSIBILITY
      ═══════════════════════════════════════════════════ -->
 <section class="audit-section">
-  <p class="section-title">02 / 06</p>
+  <p class="section-title">02 / 10</p>
   <h2 class="section-heading">Accessibility</h2>
 
   <!-- {{FINDINGS_ACCESSIBILITY}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_ACCESSIBILITY}} -->
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════
-     SECTION: PERFORMANCE
+     SECTION 03: PERFORMANCE
      ═══════════════════════════════════════════════════ -->
 <section class="audit-section">
-  <p class="section-title">03 / 06</p>
+  <p class="section-title">03 / 10</p>
   <h2 class="section-heading">Performance</h2>
 
   <!-- Metrics grid -->
@@ -674,20 +809,25 @@ td {
 </section>
 
 <!-- ═══════════════════════════════════════════════════
-     SECTION: SEO
+     SECTION 04: SEO
      ═══════════════════════════════════════════════════ -->
 <section class="audit-section">
-  <p class="section-title">04 / 06</p>
+  <p class="section-title">04 / 10</p>
   <h2 class="section-heading">SEO</h2>
 
   <!-- {{FINDINGS_SEO}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_SEO}} -->
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════
-     SECTION: CODE QUALITY
+     SECTION 05: CODE QUALITY
      ═══════════════════════════════════════════════════ -->
 <section class="audit-section">
-  <p class="section-title">05 / 06</p>
+  <p class="section-title">05 / 10</p>
   <h2 class="section-heading">Code Quality</h2>
 
   <h3 style="font-size: 0.85rem; color: var(--ink-light); margin-bottom: 0.75rem">Strengths</h3>
@@ -701,13 +841,78 @@ td {
 </section>
 
 <!-- ═══════════════════════════════════════════════════
-     SECTION: FUNCTIONALITY
+     SECTION 06: FUNCTIONALITY
      ═══════════════════════════════════════════════════ -->
 <section class="audit-section">
-  <p class="section-title">06 / 06</p>
+  <p class="section-title">06 / 10</p>
   <h2 class="section-heading">Functionality</h2>
 
   <!-- {{FINDINGS_FUNCTIONALITY}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_FUNCTIONALITY}} -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 07: DEPENDENCY HEALTH
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">07 / 10</p>
+  <h2 class="section-heading">Dependency Health</h2>
+
+  <!-- {{FINDINGS_DEPENDENCIES}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_DEPENDENCIES}} -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 08: COMPLIANCE & REGULATORY
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">08 / 10</p>
+  <h2 class="section-heading">Compliance &amp; Regulatory</h2>
+
+  <!-- {{FINDINGS_COMPLIANCE}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_COMPLIANCE}} -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 09: OPERATIONS & CI/CD
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">09 / 10</p>
+  <h2 class="section-heading">Operations &amp; CI/CD</h2>
+
+  <!-- {{FINDINGS_OPERATIONS}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_OPERATIONS}} -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 10: FRAMEWORK BEST PRACTICES
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">10 / 10</p>
+  <h2 class="section-heading">Framework Best Practices — {{FRAMEWORK_NAME}}</h2>
+
+  <!-- {{FINDINGS_FRAMEWORK}} -->
+
+  <h3 style="font-size: 0.85rem; color: var(--ink-light); margin: 1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <!-- {{STRENGTHS_FRAMEWORK}} -->
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════
@@ -779,6 +984,20 @@ td {
 </section>
 
 <!-- ═══════════════════════════════════════════════════
+     LAUNCH VERDICT
+     ═══════════════════════════════════════════════════ -->
+<section class="audit-section">
+  <p class="section-title">Verdict</p>
+  <h2 class="section-heading">Launch Readiness</h2>
+
+  <div class="verdict {{VERDICT_CLASS}}">
+    <p class="verdict-label">Launch Verdict</p>
+    <p class="verdict-value">{{VERDICT}}</p>
+    <p class="verdict-note">{{VERDICT_NOTE}}</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
      ACTION PLAN
      ═══════════════════════════════════════════════════ -->
 <section class="audit-section">
@@ -790,7 +1009,7 @@ td {
     <ol>
       <!-- {{ACTIONS_IMMEDIATE}} -->
       <!--
-      <li><strong>Action title</strong> — description</li>
+      <li><strong>Action title</strong> — description <span class="action-meta"><span class="badge badge-medium">~2h</span><span class="badge badge-high">High Impact</span></span></li>
       -->
     </ol>
   </div>
@@ -816,6 +1035,14 @@ td {
     </ol>
   </div>
 </section>
+
+<!-- ═══════════════════════════════════════════════════
+     SCORING METHODOLOGY
+     ═══════════════════════════════════════════════════ -->
+<div class="methodology">
+  <p class="methodology-title">Scoring Methodology</p>
+  <p>Scoring: 10 &minus; (Critical &times; 2.0 + High &times; 1.0 + Medium &times; 0.4 + Low &times; 0.1). Overall: weighted average. Verdict: READY (&ge;8.0, 0 Critical), RESERVES (6.0&ndash;7.9, 0 Critical), NOT READY (&lt;6.0 or Critical exists).</p>
+</div>
 
 <!-- ═══════════════════════════════════════════════════
      FOOTER

@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Report — kdx-ng-template — 2026-03-13</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+:root {
+  --white: #ffffff; --paper: #fafaf8; --ink: #1a1a1a; --ink-light: #555;
+  --ink-faint: #999; --ink-ghost: #ccc; --rule: #e8e6e1; --rule-dark: #d0cdc6;
+  --critical: #c0392b; --critical-surface: #fdf0ef;
+  --high: #d35400; --high-surface: #fef5ec;
+  --medium: #b7950b; --medium-surface: #fefcf0;
+  --low: #27ae60; --low-surface: #f0faf4;
+  --pass: #2e86ab; --pass-surface: #eef6fa;
+  --verdict-ready: #27ae60; --verdict-reserves: #d4a017; --verdict-not-ready: #c0392b;
+  --font: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'DM Mono', 'JetBrains Mono', monospace;
+  --measure: 72rem; --gap: clamp(1rem, 3vw, 2rem);
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--paper); color: var(--ink); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--ink); color: var(--white); }
+a { color: var(--ink); text-underline-offset: 3px; }
+.page { max-width: var(--measure); margin: 0 auto; padding: var(--gap); }
+.report-header { padding: 4rem 0 3rem; border-bottom: 2px solid var(--ink); }
+.report-header .eyebrow { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 1.5rem; }
+.report-header h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.5rem; }
+.report-header .subtitle { font-size: 1.15rem; font-weight: 300; color: var(--ink-light); max-width: 40ch; }
+.report-meta { display: flex; flex-wrap: wrap; gap: 2rem 3rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--rule); font-size: 0.85rem; }
+.report-meta div { min-width: 160px; }
+.report-meta dt { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.35rem; }
+.report-meta dd { color: var(--ink-light); }
+.scores { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 3rem 0; }
+.score-cell { background: var(--white); padding: 1.5rem 1.25rem; text-align: center; }
+.score-cell .number { font-size: 2.5rem; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+.score-cell .label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.4rem; }
+.score-cell .bar { height: 3px; border-radius: 2px; margin-top: 0.75rem; background: var(--rule); overflow: hidden; }
+.score-cell .bar-fill { height: 100%; border-radius: 2px; }
+.severity-strip { display: flex; gap: 0; margin: 0 0 3rem; height: 6px; border-radius: 3px; overflow: hidden; }
+.severity-legend { display: flex; gap: 1.5rem; margin: -2rem 0 3rem; font-size: 0.78rem; color: var(--ink-light); }
+.severity-legend span { display: flex; align-items: center; gap: 0.4rem; }
+.severity-legend .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.audit-section { padding: 3rem 0; border-top: 1px solid var(--rule); }
+.audit-section:first-of-type { border-top: 2px solid var(--ink); }
+.section-title { font-size: 0.68rem; font-family: var(--mono); letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.35rem; }
+.section-heading { font-size: clamp(1.4rem, 3vw, 1.8rem); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+.finding { margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-left: 3px solid var(--rule); background: var(--white); }
+.finding[data-severity="critical"] { border-left-color: var(--critical); background: var(--critical-surface); }
+.finding[data-severity="high"] { border-left-color: var(--high); background: var(--high-surface); }
+.finding[data-severity="medium"] { border-left-color: var(--medium); background: var(--medium-surface); }
+.finding[data-severity="low"] { border-left-color: var(--low); background: var(--low-surface); }
+.finding-head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.finding-id { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; color: var(--ink-faint); flex-shrink: 0; }
+.finding-name { font-weight: 600; font-size: 0.95rem; flex: 1; }
+.finding-location { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-faint); }
+.badge { font-family: var(--mono); font-size: 0.6rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 2px; flex-shrink: 0; }
+.badge-critical { background: var(--critical); color: var(--white); }
+.badge-high { background: var(--high); color: var(--white); }
+.badge-medium { background: var(--medium); color: var(--white); }
+.badge-low { background: var(--low); color: var(--white); }
+.badge-pass { background: var(--pass); color: var(--white); }
+.finding-body { font-size: 0.85rem; color: var(--ink-light); line-height: 1.7; }
+.finding-body p { margin-bottom: 0.6rem; }
+.finding-body p:last-child { margin-bottom: 0; }
+.finding-body strong { color: var(--ink); font-weight: 600; }
+.finding-body ul, .finding-body ol { padding-left: 1.25rem; margin: 0.5rem 0; }
+.finding-body li { margin-bottom: 0.25rem; }
+pre { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; background: var(--paper); border: 1px solid var(--rule); padding: 1rem 1.25rem; overflow-x: auto; margin: 0.75rem 0; white-space: pre-wrap; word-break: break-all; }
+code { font-family: var(--mono); font-size: 0.82em; background: var(--paper); padding: 0.1rem 0.35rem; border: 1px solid var(--rule); border-radius: 2px; }
+.table-wrap { overflow-x: auto; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+th { text-align: left; font-family: var(--mono); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); padding: 0.6rem 0.75rem; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.strengths-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.5rem; margin: 1rem 0; }
+.strength { font-size: 0.82rem; color: var(--ink-light); padding: 0.5rem 0 0.5rem 1.5rem; position: relative; }
+.strength::before { content: ''; position: absolute; left: 0; top: 0.85rem; width: 8px; height: 2px; background: var(--pass); }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 1.5rem 0; }
+.metric { background: var(--white); padding: 1rem; }
+.metric-value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
+.metric-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.15rem; }
+.metric-note { font-size: 0.72rem; color: var(--ink-faint); margin-top: 0.25rem; }
+.verdict { text-align: center; padding: 3rem 2rem; margin: 1rem 0 0; border: 2px solid var(--rule); background: var(--white); }
+.verdict-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 1rem; }
+.verdict-value { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 1rem; }
+.verdict-not-ready .verdict-value { color: var(--verdict-not-ready); }
+.verdict-not-ready { border-color: var(--verdict-not-ready); }
+.verdict-note { font-size: 0.88rem; color: var(--ink-light); max-width: 55ch; margin: 0 auto; line-height: 1.6; }
+.action-tier { margin-bottom: 2rem; }
+.action-tier-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+.action-tier ol { list-style: none; counter-reset: action; padding: 0; }
+.action-tier li { counter-increment: action; padding: 0.5rem 0 0.5rem 2.5rem; position: relative; font-size: 0.88rem; border-bottom: 1px solid var(--rule); }
+.action-tier li:last-child { border-bottom: none; }
+.action-tier li::before { content: counter(action, decimal-leading-zero); font-family: var(--mono); font-size: 0.7rem; color: var(--ink-faint); position: absolute; left: 0; top: 0.6rem; }
+.action-meta { display: inline-flex; gap: 0.4rem; margin-left: 0.5rem; vertical-align: middle; }
+.action-meta .badge { font-size: 0.55rem; padding: 0.1rem 0.4rem; background: var(--paper); color: var(--ink-light); border: 1px solid var(--rule); }
+.action-meta .badge-high { background: var(--high-surface); color: var(--high); border-color: var(--high); }
+.action-meta .badge-medium { background: var(--medium-surface); color: var(--medium); border-color: var(--medium); }
+.methodology { margin-top: 2rem; padding: 1.25rem 1.5rem; background: var(--white); border: 1px solid var(--rule); font-size: 0.75rem; color: var(--ink-faint); line-height: 1.7; }
+.methodology-title { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-ghost); margin-bottom: 0.4rem; }
+.report-footer { margin-top: 3rem; padding: 2rem 0; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; font-size: 0.75rem; color: var(--ink-faint); }
+.spacer { height: 2rem; }
+@media print { body { background: white; } .page { max-width: none; padding: 0; } .finding { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="report-header">
+  <p class="eyebrow">Quality Assurance Report — Full Audit</p>
+  <h1>kdx-ng-template</h1>
+  <p class="subtitle">Angular 21 CSR + Django 5.2 DRF SaaS starter stack</p>
+  <dl class="report-meta">
+    <div><dt>Date</dt><dd>2026-03-13</dd></div>
+    <div><dt>Target</dt><dd>http://localhost:4200</dd></div>
+    <div><dt>API</dt><dd>http://localhost:8000</dd></div>
+    <div><dt>Repository</dt><dd><a href="https://github.com/kodexArg/kdx-ng-template">kodexArg/kdx-ng-template</a></dd></div>
+    <div><dt>Auditor</dt><dd>Claude Code QA Agent</dd></div>
+    <div><dt>Stack</dt><dd>Angular 21 · Django 5.2 · PostgreSQL 16 · SimpleJWT · Docker</dd></div>
+    <div><dt>Scope</dt><dd>Security, A11y, Performance, SEO, Code, Functional, Deps, Compliance, Ops, Framework</dd></div>
+    <div><dt>Auth tested</dt><dd>admin@example.com / admin123</dd></div>
+  </dl>
+</header>
+
+<div class="scores">
+  <div class="score-cell">
+    <div class="number" style="color:var(--critical)">3.8</div>
+    <div class="label">Security</div>
+    <div class="bar"><div class="bar-fill" style="width:38%;background:var(--critical)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--high)">4.9</div>
+    <div class="label">Accessibility</div>
+    <div class="bar"><div class="bar-fill" style="width:49%;background:var(--high)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--pass)">7.6</div>
+    <div class="label">Performance</div>
+    <div class="bar"><div class="bar-fill" style="width:76%;background:var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--medium)">6.4</div>
+    <div class="label">SEO</div>
+    <div class="bar"><div class="bar-fill" style="width:64%;background:var(--medium)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--critical)">3.3</div>
+    <div class="label">Code Quality</div>
+    <div class="bar"><div class="bar-fill" style="width:33%;background:var(--critical)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--pass)">7.7</div>
+    <div class="label">Functional</div>
+    <div class="bar"><div class="bar-fill" style="width:77%;background:var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--pass)">9.4</div>
+    <div class="label">Dependencies</div>
+    <div class="bar"><div class="bar-fill" style="width:94%;background:var(--pass)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--medium)">6.1</div>
+    <div class="label">Compliance</div>
+    <div class="bar"><div class="bar-fill" style="width:61%;background:var(--medium)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--medium)">6.0</div>
+    <div class="label">Operations</div>
+    <div class="bar"><div class="bar-fill" style="width:60%;background:var(--medium)"></div></div>
+  </div>
+  <div class="score-cell">
+    <div class="number" style="color:var(--medium)">6.4</div>
+    <div class="label">Framework</div>
+    <div class="bar"><div class="bar-fill" style="width:64%;background:var(--medium)"></div></div>
+  </div>
+</div>
+
+<div class="severity-strip">
+  <div style="flex:0;background:var(--critical)"></div>
+  <div style="flex:20;background:var(--high)"></div>
+  <div style="flex:36;background:var(--medium)"></div>
+  <div style="flex:40;background:var(--low)"></div>
+</div>
+<div class="severity-legend">
+  <span><span class="dot" style="background:var(--critical)"></span> 0 Critical</span>
+  <span><span class="dot" style="background:var(--high)"></span> 20 High</span>
+  <span><span class="dot" style="background:var(--medium)"></span> 36 Medium</span>
+  <span><span class="dot" style="background:var(--low)"></span> 40 Low</span>
+  <span style="color:var(--ink-faint);margin-left:auto">96 total findings</span>
+</div>
+
+<!-- ═══ 01 SECURITY ═══ -->
+<section class="audit-section">
+  <p class="section-title">01 / 10</p>
+  <h2 class="section-heading">Security</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">SEC-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">JWT access and refresh tokens stored in localStorage</span>
+      <span class="finding-location">auth.service.ts:100-101</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Any XSS payload or malicious script can read both tokens. The refresh token (7-day lifetime) provides persistent account access — and cannot be revoked once stolen (see SEC-003).</p>
+      <pre>localStorage.setItem('access_token', access);
+localStorage.setItem('refresh_token', refresh);</pre>
+      <p><strong>Remediation:</strong> Store access token in memory (a signal). Store refresh token in an <code>HttpOnly; Secure; SameSite=Strict</code> cookie set by the backend. Requires a backend cookie-based refresh endpoint.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">SEC-002</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No Content-Security-Policy on frontend or API</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> Without CSP, browsers allow inline scripts and arbitrary external sources. This maximises XSS blast radius — especially critical given localStorage token storage (SEC-001).</p>
+      <p>Neither <code>localhost:4200</code> nor <code>localhost:8000</code> return a <code>Content-Security-Policy</code> header. Django <code>SecurityMiddleware</code> is present but no <code>CSP_*</code> settings are configured.</p>
+      <p><strong>Remediation:</strong> Add at minimum <code>default-src 'self'; script-src 'self'; object-src 'none'</code> via <code>django-csp</code> (API) and CloudFront custom headers (SPA).</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">SEC-003</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No JWT logout / server-side token revocation</span>
+      <span class="finding-location">config/urls.py</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> <code>auth.logout()</code> only clears localStorage — it issues no API call. The access token (60 min) and refresh token (7 days) remain valid server-side indefinitely. A stolen token cannot be invalidated.</p>
+      <pre>// auth.service.ts:92-96 — no API call, only local cleanup
+logout(): void {
+  this.clearTokens();
+  this.router.navigate(['/login']);
+}</pre>
+      <p><code>rest_framework_simplejwt.token_blacklist</code> is not installed. <code>ROTATE_REFRESH_TOKENS</code> is <code>False</code>.</p>
+      <p><strong>Remediation:</strong> Install <code>simplejwt.token_blacklist</code>, add <code>TokenBlacklistView</code> at <code>/api/auth/logout/</code>, set <code>ROTATE_REFRESH_TOKENS: True</code>. Frontend must POST the refresh token before clearing storage.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">SEC-004</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Production authentication uses SimpleJWT — Cognito not implemented</span>
+      <span class="finding-location">config/settings/production.py:22-36</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Impact:</strong> <code>production.py</code> explicitly states the Cognito integration is a TODO and that the current fallback "will fail in prod if used." The production stack uses HS256 with a local secret key, not Cognito's RS256 asymmetric validation.</p>
+      <pre># production.py:36
+# For now, fallback to SimpleJWT (local dev only; will fail in prod if used).
+'rest_framework_simplejwt.authentication.JWTAuthentication'</pre>
+      <p><strong>Remediation:</strong> Implement Cognito JWKS validation (<code>python-jose</code> against the Cognito JWKS endpoint) before any production deployment. This is a pre-launch blocker.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">SEC-005</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">ALLOWED_HOSTS defaults to wildcard <code>*</code> in docker-compose</span>
+      <span class="finding-location">docker-compose.yml:39</span>
+    </div>
+    <div class="finding-body">
+      <p><code>ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}</code> — if the env var is unset (e.g., in CI), Django accepts requests for any hostname, defeating host-header validation. Combined with <code>DEBUG=True</code> in local.py, this exposes full stack traces.</p>
+      <p><strong>Remediation:</strong> Change default to <code>localhost,127.0.0.1</code> or use <code>:?ALLOWED_HOSTS must be set</code> to fail-fast.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">SEC-006</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Hardcoded <code>django-insecure</code> fallback SECRET_KEY in version control</span>
+      <span class="finding-location">config/settings/local.py:14-15</span>
+    </div>
+    <div class="finding-body">
+      <p><code>'django-insecure-dev-key-change-in-production'</code> is committed to the repo. Anyone who clones it knows this fallback — used for signing sessions, CSRF tokens, and password reset links.</p>
+      <p><strong>Remediation:</strong> Remove the fallback entirely. Raise <code>ImproperlyConfigured</code> if <code>DJANGO_SECRET_KEY</code> is unset.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">SEC-007</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Brute-force login protection rate is permissive (10/hour, IP-only)</span>
+      <span class="finding-location">config/settings/base.py:99</span>
+    </div>
+    <div class="finding-body">
+      <p>10 attempts/hour per IP is confirmed working (triggered HTTP 429 at attempt 6 during audit). However, distributed IPs bypass it entirely and there is no per-account lockout. The throttle also blocked cross-agent QA testing for the audit session.</p>
+      <p><strong>Remediation:</strong> Add account-level lockout after N failures. Consider CAPTCHA for repeated failures. Disable throttle in local settings for development.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">SEC-008</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Angular frontend serves zero security headers</span>
+      <span class="finding-location">localhost:4200</span>
+    </div>
+    <div class="finding-body">
+      <p>The SPA delivery has no <code>X-Frame-Options</code>, <code>X-Content-Type-Options</code>, <code>Referrer-Policy</code>, or <code>Permissions-Policy</code>. The Django API correctly sets these via <code>SecurityMiddleware</code>, but the frontend CDN does not.</p>
+      <p><strong>Remediation:</strong> Configure AWS Amplify/CloudFront custom response headers for the SPA distribution.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">SEC-009</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">No token refresh before logout on 401 — users immediately kicked out on expiry</span>
+      <span class="finding-location">error.interceptor.ts:10-13</span>
+    </div>
+    <div class="finding-body">
+      <p>The error interceptor calls <code>auth.logout()</code> directly on any 401. <code>AuthService.refreshToken()</code> exists but is never called from the interceptor. A 60-minute access token expiry during an active session forces re-login.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">SEC-010</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Django admin at default <code>/admin/</code> path with no IP restriction</span>
+      <span class="finding-location">config/urls.py:6</span>
+    </div>
+    <div class="finding-body">
+      <p>The admin panel is accessible at the well-known <code>/admin/</code> path with no IP allowlist or 2FA.</p>
+      <p><strong>Remediation:</strong> Change URL to a non-predictable path. Restrict to internal IPs at the ALB level in production.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">SEC-011</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name"><code>is_staff</code> exposed in <code>/api/auth/me/</code> response</span>
+      <span class="finding-location">apps/users/serializers.py:28</span>
+    </div>
+    <div class="finding-body">
+      <p>Privilege levels in responses help attackers target high-value accounts. Remove <code>is_staff</code> from the serializer unless the frontend requires it for UI logic.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">SEC-012</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Server header discloses <code>uvicorn</code> version</span>
+    </div>
+    <div class="finding-body">
+      <p>All API responses include <code>server: uvicorn</code>. Strip or replace via reverse proxy / CloudFront.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">CORS correctly restricted — only localhost:4200 allowed, null origin blocked</div>
+    <div class="strength">SQL injection mitigated — Django ORM parameterized queries throughout</div>
+    <div class="strength">User enumeration prevented — identical error message for wrong email/password</div>
+    <div class="strength">JSON-only API — browsable API disabled, no HTML rendering attack surface</div>
+    <div class="strength">Multi-stage Dockerfile with non-root appuser (UID 1000)</div>
+    <div class="strength"><code>.env</code> correctly gitignored — credentials not committed</div>
+    <div class="strength">Production settings enforce HSTS, SSL redirect, secure cookies</div>
+    <div class="strength">Login throttle functional — HTTP 429 confirmed at 6th attempt</div>
+  </div>
+</section>
+
+<!-- ═══ 02 ACCESSIBILITY ═══ -->
+<section class="audit-section">
+  <p class="section-title">02 / 10</p>
+  <h2 class="section-heading">Accessibility</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Icon-only logout button has no accessible name</span>
+      <span class="finding-location">shell.component.ts:19-24</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 4.1.2</strong> — <code>&lt;p-button icon="pi pi-sign-out" /&gt;</code> with no <code>label</code>, <code>aria-label</code>, or <code>aria-labelledby</code>. Screen readers announce it as an unnamed button.</p>
+      <p><strong>Fix:</strong> <code>&lt;p-button icon="pi pi-sign-out" aria-label="Log out" /&gt;</code></p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-002</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Form validation errors not associated with inputs via <code>aria-describedby</code></span>
+      <span class="finding-location">login.component.ts:31-43</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 3.3.1 / 1.3.1</strong> — Email and password inputs show <code>&lt;p-message&gt;</code> errors conditionally but have no <code>aria-describedby</code> linking to the error element, and no <code>aria-invalid</code> state toggling. Screen reader users are not informed of validation failures.</p>
+      <p><strong>Fix:</strong> Add <code>[aria-describedby]="'email-error'"</code> and <code>[aria-invalid]="field.touched() &amp;&amp; field.invalid()"</code> to each input; add matching <code>id</code> to error messages.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-003</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No skip navigation / bypass blocks mechanism</span>
+      <span class="finding-location">shell.component.ts</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 2.4.1</strong> — Navigation renders before <code>&lt;main&gt;</code> with no skip link. Keyboard users must tab through the entire nav on every page.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-004</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">SPA route changes not announced to screen readers</span>
+      <span class="finding-location">app.ts</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 4.1.3</strong> — Bare <code>&lt;router-outlet /&gt;</code> with no focus management or <code>LiveAnnouncer</code> call on navigation. Screen reader users get no notification when the page content changes.</p>
+      <p><strong>Fix:</strong> Implement <code>@angular/cdk/a11y</code> <code>LiveAnnouncer</code> or router event listener to announce page title on navigation.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-005</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Global login error has no live region — not announced on submission</span>
+      <span class="finding-location">login.component.ts:25</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 4.1.3</strong> — The conditional <code>&lt;p-message&gt;</code> block for API errors lacks <code>role="alert"</code> or an <code>aria-live</code> wrapper. Screen readers do not announce it when it appears.</p>
+      <p><strong>Fix:</strong> Wrap in <code>&lt;div role="alert" aria-live="assertive"&gt;</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-006</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No <code>:focus-visible</code> styles in global stylesheet</span>
+      <span class="finding-location">styles.scss</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 2.4.7 / 2.4.11</strong> — No focus ring styles defined. Keyboard navigation has no visible focus indicator beyond the browser default (which PrimeNG may suppress).</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-007</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Link color is the sole visual differentiator from surrounding text</span>
+      <span class="finding-location">styles.scss:13-15</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>WCAG 1.4.1</strong> — <code>text-decoration: none</code> on links with no border or other non-color indicator. Color-blind users cannot distinguish links from regular text.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-008</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Navigation landmark missing <code>aria-label</code></span>
+      <span class="finding-location">shell.component.ts:13</span>
+    </div>
+    <div class="finding-body"><p><strong>WCAG 2.4.6</strong> — <code>&lt;p-menubar&gt;</code> renders a <code>&lt;nav&gt;</code> without <code>ariaLabel</code>. Add <code>ariaLabel="Main navigation"</code>.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">A11Y-009</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Dashboard renders user data as <code>&lt;p&gt;/&lt;strong&gt;</code> instead of <code>&lt;dl&gt;/&lt;dt&gt;/&lt;dd&gt;</code></span>
+      <span class="finding-location">dashboard.component.ts:13-17</span>
+    </div>
+    <div class="finding-body"><p><strong>WCAG 1.3.1</strong> — Key–value data should use definition list semantics for screen readers.</p></div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength"><code>&lt;html lang="en"&gt;</code> correctly set</div>
+    <div class="strength">Viewport meta correctly configured for mobile</div>
+    <div class="strength">Login form uses correct autocomplete attributes (<code>email</code>, <code>current-password</code>)</div>
+    <div class="strength">Submit button disabled when form is invalid — prevents empty submission</div>
+    <div class="strength">All routes define <code>title:</code> — <code>document.title</code> updates on navigation</div>
+  </div>
+</section>
+
+<!-- ═══ 03 PERFORMANCE ═══ -->
+<section class="audit-section">
+  <p class="section-title">03 / 10</p>
+  <h2 class="section-heading">Performance</h2>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">2.5ms</div>
+      <div class="metric-label">TTFB Frontend</div>
+      <div class="metric-note">avg 5 runs — excellent</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">5.5ms</div>
+      <div class="metric-label">TTFB API</div>
+      <div class="metric-note">avg 5 runs — excellent</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">442 B</div>
+      <div class="metric-label">HTML Shell</div>
+      <div class="metric-note">CSR — body is empty</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">700 KB</div>
+      <div class="metric-label">Total JS (dev)</div>
+      <div class="metric-note">uncompressed, dev build</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">None</div>
+      <div class="metric-label">Compression</div>
+      <div class="metric-note">gzip/brotli absent</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">Yes</div>
+      <div class="metric-label">Lazy Loading</div>
+      <div class="metric-note">all routes use loadComponent()</div>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">PERF-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No HTTP compression on frontend or API</span>
+    </div>
+    <div class="finding-body">
+      <p>Neither the Angular dev server nor the Django/Uvicorn API respond to <code>Accept-Encoding: gzip, br</code>. No <code>Content-Encoding</code> header is returned. <code>GZipMiddleware</code> absent from Django middleware stack. For the 700 KB JS bundle, brotli would reduce transfer size to ~100–150 KB.</p>
+      <p><strong>Remediation:</strong> Add <code>django.middleware.gzip.GZipMiddleware</code> to Django <code>MIDDLEWARE</code> (before <code>CommonMiddleware</code>). Enable brotli/gzip at CloudFront for the SPA.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">PERF-002</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No database connection pooling — new TCP connection per request</span>
+      <span class="finding-location">config/settings/base.py:58-67</span>
+    </div>
+    <div class="finding-body">
+      <p><code>DATABASES['default']</code> has no <code>CONN_MAX_AGE</code> setting. Each request opens and closes a PostgreSQL TCP connection. Under concurrent load this is a significant bottleneck.</p>
+      <p><strong>Remediation:</strong> Add <code>'CONN_MAX_AGE': 60, 'CONN_HEALTH_CHECKS': True</code> to the database config. For production on AWS App Runner, consider RDS Proxy.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">PERF-003</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No caching layer configured</span>
+    </div>
+    <div class="finding-body">
+      <p>No <code>CACHES</code> setting anywhere. Django defaults to per-process <code>LocMemCache</code>. The <code>/api/auth/me/</code> endpoint hits the DB on every call. The throttle backend resets on server restart.</p>
+      <p><strong>Remediation:</strong> Add Redis (<code>django-redis</code>) for production. Configure throttle backend to use Redis for persistence across restarts.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">PERF-004</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">PrimeNG Aura theme (124 KB) loaded eagerly at bootstrap</span>
+      <span class="finding-location">app.config.ts</span>
+    </div>
+    <div class="finding-body">
+      <p><code>import Aura from '@primeng/themes/aura'</code> is a synchronous top-level import loaded before any route resolves. In production, CloudFront brotli compression mitigates this (~15-20 KB compressed). Acceptable trade-off for global theming — no practical lazy-load alternative exists for PrimeNG presets.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">All components use OnPush — no unnecessary re-renders</div>
+    <div class="strength">All routes use <code>loadComponent()</code> — full lazy loading</div>
+    <div class="strength">Bundle budgets configured: 500 KB warning, 1 MB error</div>
+    <div class="strength">TTFB: 2.5 ms (frontend), 5.5 ms (API) — excellent local baseline</div>
+  </div>
+</section>
+
+<!-- ═══ 04 SEO ═══ -->
+<section class="audit-section">
+  <p class="section-title">04 / 10</p>
+  <h2 class="section-heading">SEO</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">SEO-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Pure CSR — crawler sees empty <code>&lt;app-root&gt;&lt;/app-root&gt;</code></span>
+      <span class="finding-location">angular.json (no SSR target)</span>
+    </div>
+    <div class="finding-body">
+      <p>No SSR or prerender configuration exists in <code>angular.json</code>. Crawlers fetching without JS execution receive no text content. For B2B SaaS the public login page is an indexable surface — brand name, product description, and social sharing all apply to it.</p>
+      <p><strong>Remediation:</strong> For the login/landing page, add Angular SSR (<code>ng add @angular/ssr</code>) or static prerendering. Dashboard routes do not need SSR.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">SEO-002</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No <code>robots.txt</code> — authenticated routes potentially indexable</span>
+    </div>
+    <div class="finding-body">
+      <p>GET <code>/robots.txt</code> returns 404. Without a disallow rule for <code>/dashboard</code>, if a crawler ever follows a shared link while authenticated, private content could be indexed.</p>
+      <p><strong>Remediation:</strong> Create <code>frontend/public/robots.txt</code> with <code>Disallow: /dashboard</code> and <code>Allow: /login</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">SEO-003</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Missing <code>&lt;meta name="description"&gt;</code></span>
+      <span class="finding-location">src/index.html</span>
+    </div>
+    <div class="finding-body"><p>No meta description tag exists. Google auto-generates snippets from content — for a CSR app with empty <code>&lt;app-root&gt;</code>, the SERP snippet will be blank.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">SEO-004</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No Open Graph tags — no social sharing preview</span>
+    </div>
+    <div class="finding-body"><p>All five OG tags absent. Shared links on LinkedIn/Slack render with no preview card.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">SEO-005</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Generic placeholder <code>&lt;title&gt;</code> — <code>kdx-ng-template</code></span>
+      <span class="finding-location">src/index.html</span>
+    </div>
+    <div class="finding-body"><p>15 characters (optimal: 30-60). Per-route titles (<code>"Login"</code>, <code>"Dashboard"</code>) are also thin. Use a <code>TitleStrategy</code> with brand prefix.</p></div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength"><code>&lt;html lang="en"&gt;</code> set correctly</div>
+    <div class="strength">Viewport meta correctly configured</div>
+    <div class="strength">All routes define <code>title:</code> strings — Angular updates <code>document.title</code> on navigation</div>
+  </div>
+</section>
+
+<!-- ═══ 05 CODE QUALITY ═══ -->
+<section class="audit-section">
+  <p class="section-title">05 / 10</p>
+  <h2 class="section-heading">Code Quality</h2>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin-bottom:0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">All components standalone with OnPush — no NgModule anywhere</div>
+    <div class="strength">All DI uses <code>inject()</code> — no constructor injection</div>
+    <div class="strength">All templates use <code>@if</code>/<code>@for</code> — no *ngIf/*ngFor</div>
+    <div class="strength">Signals (<code>signal()</code>, <code>computed()</code>) used correctly throughout</div>
+    <div class="strength">No raw <code>any</code> types in any TypeScript file</div>
+    <div class="strength">No <code>console.log</code> in component or service code</div>
+    <div class="strength">LoginThrottle with <code>scope='login'</code> at 10/hour — explicit, well-scoped</div>
+    <div class="strength">UserSerializer with <code>read_only_fields = fields</code> — no write exposure</div>
+    <div class="strength">Django: <code>LoginView</code> and <code>MeView</code> both declare explicit permission classes</div>
+  </div>
+  <div class="spacer"></div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">CQ-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">JWT tokens stored in localStorage (XSS exposure)</span>
+      <span class="finding-location">auth.service.ts:100-101</span>
+    </div>
+    <div class="finding-body"><p>See SEC-001. Architectural finding — both security and code quality impact.</p></div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">CQ-002</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No token refresh on 401 in error interceptor</span>
+      <span class="finding-location">error.interceptor.ts:10-13</span>
+    </div>
+    <div class="finding-body">
+      <p><code>auth.logout()</code> called immediately on 401 without trying <code>auth.refreshToken()</code> first. <code>refreshToken()</code> is implemented but unreachable from the interceptor. Users are logged out after every 60-minute access token expiry.</p>
+<pre>if (error.status === 401 && !req.url.includes('/auth/login')) {
+  auth.logout(); // ← should attempt refresh first
+}</pre>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">CQ-003</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name"><code>DEFAULT_AUTHENTICATION_CLASSES</code> missing from <code>base.py</code></span>
+      <span class="finding-location">config/settings/base.py:86-101</span>
+    </div>
+    <div class="finding-body">
+      <p>Each settings module defines auth classes independently. A future <code>staging.py</code> that omits the key causes DRF to fall back to <code>SessionAuthentication + BasicAuthentication</code>, exposing all endpoints to credential-based attacks.</p>
+      <p><strong>Remediation:</strong> Add <code>'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework_simplejwt.authentication.JWTAuthentication']</code> to <code>base.py</code>'s <code>REST_FRAMEWORK</code> dict.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">CQ-004</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Production Cognito auth is a TODO placeholder</span>
+      <span class="finding-location">config/settings/production.py:22-36</span>
+    </div>
+    <div class="finding-body"><p>See SEC-004. Pre-launch blocker.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">CQ-005</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name"><code>isAuthenticated</code> checks token presence only — not validity</span>
+      <span class="finding-location">auth.service.ts:36 / auth.guard.ts:9</span>
+    </div>
+    <div class="finding-body">
+      <p><code>computed(() =&gt; !!this._accessToken())</code> returns <code>true</code> for expired or forged tokens. The auth guard short-circuits at this check without ever hitting the API. Protected routes are accessible with any non-null string in localStorage.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">CQ-006</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name"><code>ROTATE_REFRESH_TOKENS: False</code> — refresh tokens reusable indefinitely</span>
+      <span class="finding-location">config/settings/local.py:25</span>
+    </div>
+    <div class="finding-body"><p>A stolen 7-day refresh token can be replayed indefinitely. Set <code>ROTATE_REFRESH_TOKENS: True</code> and <code>BLACKLIST_AFTER_ROTATION: True</code>.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">CQ-007</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name"><code>USER_ID_FIELD: 'sub'</code> set in local.py but absent from production.py</span>
+      <span class="finding-location">local.py:29-30 / production.py</span>
+    </div>
+    <div class="finding-body">
+      <p>Local tokens use the <code>sub</code> claim; production tokens will use the default <code>id</code> PK. Protocol mismatch between environments — tokens from one environment will not authenticate in the other.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">CQ-008</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name"><code>LoginSerializer</code> does not explicitly check <code>user.is_active</code></span>
+      <span class="finding-location">apps/users/serializers.py:12-19</span>
+    </div>
+    <div class="finding-body"><p>Relies on <code>ModelBackend</code> to enforce <code>is_active</code>. A custom auth backend added later that skips this check would allow deactivated users to login. Add an explicit <code>if not user.is_active</code> guard.</p></div>
+  </div>
+</section>
+
+<!-- ═══ 06 FUNCTIONALITY ═══ -->
+<section class="audit-section">
+  <p class="section-title">06 / 10</p>
+  <h2 class="section-heading">Functionality</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">FUNC-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Auth guard bypassed by any non-null localStorage token value</span>
+      <span class="finding-location">auth.guard.ts:9</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>Confirmed via browser testing:</strong> setting <code>localStorage.setItem('access_token', 'invalid.token.here')</code> then navigating to <code>/dashboard</code> renders the full protected page. The guard checks <code>!!this._accessToken()</code> (signal from localStorage) and returns <code>true</code> immediately without any API validation.</p>
+      <pre>// auth.guard.ts:9 — bypass with any string
+if (auth.isAuthenticated()) return true; // ← never validates token</pre>
+      <p><strong>Remediation:</strong> Remove the early-return fast-path. Always call <code>await auth.checkAuth()</code>, which validates against <code>/api/auth/me/</code>.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FUNC-002</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No <code>noAuthGuard</code> on <code>/login</code> — authenticated users can access login page</span>
+      <span class="finding-location">app.routes.ts:8-11</span>
+    </div>
+    <div class="finding-body">
+      <p>Confirmed: injecting valid tokens and navigating to <code>http://localhost:4200/login</code> renders the login form. No redirect to <code>/dashboard</code> occurs. Add a <code>canActivate: [noAuthGuard]</code> functional guard to the login route.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FUNC-003</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">User profile not loaded on session restore — name absent from navbar</span>
+      <span class="finding-location">auth.guard.ts:9 / auth.service.ts:72-90</span>
+    </div>
+    <div class="finding-body">
+      <p>When the app boots with a token in localStorage, the guard's fast-path (<code>if (auth.isAuthenticated()) return true</code>) returns before <code>checkAuth()</code> — which calls <code>loadProfile()</code> — is ever invoked. The Shell's <code>@if (auth.currentUser(); as user)</code> block renders nothing. User name is absent from the navbar.</p>
+      <p><strong>Fix:</strong> Always call <code>await auth.checkAuth()</code> in the guard (removes fast-path), or call <code>auth.loadProfile()</code> via <code>APP_INITIALIZER</code> when a token is found.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FUNC-004</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Raw API throttle error message exposed verbatim to users</span>
+      <span class="finding-location">login.component.ts:108-113</span>
+    </div>
+    <div class="finding-body">
+      <p>When rate-limited, users see: <em>"Request was throttled. Expected available in 3551 seconds."</em> — a backend technical message. The component renders <code>err.error?.detail</code> without checking the HTTP status code first.</p>
+      <p><strong>Fix:</strong> Detect HTTP 429 and show: <em>"Too many login attempts. Please try again in a few minutes."</em></p>
+    </div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Login form — email, password, submit button all render correctly</div>
+    <div class="strength">Submit button correctly disabled when form is invalid</div>
+    <div class="strength">Auth guard correctly redirects to <code>/login?returnUrl=...</code> when unauthenticated</div>
+    <div class="strength">Logout clears both tokens and redirects — fully functional</div>
+    <div class="strength">404 wildcard route correctly renders NotFound component</div>
+    <div class="strength">Email format validation working — error message shown inline</div>
+  </div>
+</section>
+
+<!-- ═══ 07 DEPENDENCIES ═══ -->
+<section class="audit-section">
+  <p class="section-title">07 / 10</p>
+  <h2 class="section-heading">Dependency Health</h2>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">DEP-001</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Deprecated package: <code>@primeng/themes@21.0.4</code></span>
+      <span class="finding-location">frontend/package.json:21</span>
+    </div>
+    <div class="finding-body">
+      <p>Deprecated by PrimeNG maintainers — no further updates or security patches. Official replacement is <code>@primeuix/themes</code>.</p>
+      <p><strong>Remediation:</strong> <code>npm install @primeuix/themes</code>, update theme imports in <code>app.config.ts</code>, test visually.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">DEP-002</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Angular package versions inconsistent across <code>package.json</code></span>
+    </div>
+    <div class="finding-body"><p><code>@angular/animations: "^21.2.4"</code> vs <code>@angular/common: "^21.2.0"</code>. Normalize all Angular packages to a consistent floor version.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">DEP-003</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">Backend specifiers allow wide version drift without lock file</span>
+      <span class="finding-location">backend/pyproject.toml</span>
+    </div>
+    <div class="finding-body"><p>Only <code>django</code> has an upper-bound cap (<code>&lt;6.0</code>). Other packages use unbounded lower bounds (e.g., <code>djangorestframework&gt;=3.15</code>). The <code>uv.lock</code> mitigates this in practice — but add upper bounds for defense-in-depth.</p></div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">npm audit: <strong>0 vulnerabilities</strong> across 587 packages</div>
+    <div class="strength">Both <code>package-lock.json</code> and <code>uv.lock</code> committed to git</div>
+    <div class="strength">No GPL or restrictive licenses in either dependency tree</div>
+    <div class="strength">All backend packages current: Django 5.2.12, DRF 3.16.1, simplejwt 5.5.1</div>
+  </div>
+</section>
+
+<!-- ═══ 08 COMPLIANCE ═══ -->
+<section class="audit-section">
+  <p class="section-title">08 / 10</p>
+  <h2 class="section-heading">Compliance &amp; Regulatory</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">COMP-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No privacy policy or terms of service pages</span>
+      <span class="finding-location">app.routes.ts</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>GDPR Art. 13/14, CCPA</strong> — Routes <code>/privacy</code> and <code>/terms</code> fall through to the 404 component. No legal content exists anywhere in the codebase. Pre-launch blocker for any deployment handling personal data.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">COMP-002</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">JWT tokens in localStorage — GDPR Art. 32 security obligation</span>
+    </div>
+    <div class="finding-body"><p>See SEC-001. Architecturally insufficient protection for credentials under GDPR's security-of-processing requirement.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">COMP-003</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No DSAR endpoints — right to erasure / data portability not implemented</span>
+    </div>
+    <div class="finding-body">
+      <p><strong>GDPR Art. 17, 20</strong> — No <code>DELETE /api/auth/account/</code> or <code>GET /api/auth/export/</code> endpoints. Only Django admin allows manual deletion. Pre-launch requirement for regulated contexts.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">COMP-004</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No cookie consent mechanism</span>
+    </div>
+    <div class="finding-body"><p>Zero consent UI in the frontend. Currently no tracking cookies are set (positive), but the production stack targets AWS Cognito which may set session cookies. Structural gap for any future analytics integration.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">COMP-005</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No data retention policy defined</span>
+    </div>
+    <div class="finding-body"><p><strong>GDPR Art. 5(1)(e)</strong> — No <code>deleted_at</code> field, no inactive account purge, no documented retention periods. Add soft-delete and scheduled purge before handling real user data.</p></div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Zero cookies set by any endpoint — no consent banner required currently</div>
+    <div class="strength">Zero third-party analytics or tracking scripts detected</div>
+    <div class="strength">PII collection is minimal: email, given_name, family_name only</div>
+    <div class="strength">No CDN or external font dependencies in HTML shell</div>
+  </div>
+</section>
+
+<!-- ═══ 09 OPERATIONS ═══ -->
+<section class="audit-section">
+  <p class="section-title">09 / 10</p>
+  <h2 class="section-heading">Operations &amp; CI/CD</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">OPS-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">No CI/CD pipeline — zero GitHub Actions workflows</span>
+    </div>
+    <div class="finding-body">
+      <p>No <code>.github/</code> directory exists. No automated testing, linting, build, or deployment gates on pushes or pull requests. Test suite passes (24/24) but is never run automatically.</p>
+      <p><strong>Remediation:</strong> Create <code>.github/workflows/ci.yml</code> with jobs for <code>uv run pytest</code>, <code>ng build --configuration production</code>, and Docker image build. Enable branch protection requiring CI to pass.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">OPS-002</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Production Cognito auth not implemented — pre-launch blocker</span>
+    </div>
+    <div class="finding-body"><p>See SEC-004. Duplicated here as an operational pre-launch blocker.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">OPS-003</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">Health check is shallow — does not probe database</span>
+      <span class="finding-location">config/views.py:14-20</span>
+    </div>
+    <div class="finding-body">
+      <p><code>/api/health/</code> returns <code>{"status":"healthy"}</code> based solely on ASGI process liveness. A running but DB-disconnected container reports healthy. Container orchestrators relying on this check will not detect DB failures.</p>
+      <p><strong>Remediation:</strong> Add <code>django.db.connection.ensure_connection()</code> and return HTTP 503 if it fails.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">OPS-004</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No error tracking or structured logging</span>
+    </div>
+    <div class="finding-body">
+      <p>No Sentry, Datadog, or equivalent. No <code>LOGGING</code> dict in any settings file — Django uses its default console logger. Unhandled exceptions in production produce no alerting.</p>
+      <p><strong>Remediation:</strong> Add <code>sentry-sdk[django]</code> in <code>production.py</code>. Add a structured JSON <code>LOGGING</code> dict to <code>base.py</code> for CloudWatch ingestion.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">OPS-005</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No PostgreSQL backup strategy documented or implemented</span>
+    </div>
+    <div class="finding-body"><p>Docker volume <code>pg_data</code> persists data locally with no backup hooks. No <code>pg_dump</code> schedule, no RDS automated backup documentation. Add to <code>DOCKER.md</code> runbook before first real-data deployment.</p></div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">OPS-006</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name"><code>uv run pytest</code> fails inside container — non-root user has no home dir</span>
+      <span class="finding-location">backend/Dockerfile:17</span>
+    </div>
+    <div class="finding-body">
+      <p><code>useradd -M</code> (no home dir) causes <code>uv</code> to fail writing cache to <code>/home/appuser/.cache/uv</code>. Tests require <code>HOME=/tmp</code> workaround. Fix: change <code>-M</code> to <code>-m</code> or add <code>ENV HOME=/tmp</code> in the Dockerfile.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="low">
+    <div class="finding-head">
+      <span class="finding-id">OPS-007</span>
+      <span class="badge badge-low">Low</span>
+      <span class="finding-name">PostgreSQL port 5432 exposed to host on all interfaces</span>
+      <span class="finding-location">docker-compose.yml:18-19</span>
+    </div>
+    <div class="finding-body"><p>Bind to <code>127.0.0.1:5432:5432</code> instead of the default <code>0.0.0.0:5432:5432</code> to restrict access on networked machines.</p></div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">Test suite: <strong>24/24 passing</strong> — auth, models, health, seed commands all covered</div>
+    <div class="strength">Non-root Docker user (appuser, UID 1000) — container security best practice</div>
+    <div class="strength">Multi-stage Dockerfile — build tools excluded from production image</div>
+    <div class="strength">Docker health checks and <code>restart: unless-stopped</code> configured</div>
+    <div class="strength"><code>.env</code> gitignored — credentials not committed</div>
+    <div class="strength">Production settings: HSTS, <code>SECURE_SSL_REDIRECT</code>, <code>SESSION_COOKIE_SECURE</code></div>
+  </div>
+</section>
+
+<!-- ═══ 10 FRAMEWORK ═══ -->
+<section class="audit-section">
+  <p class="section-title">10 / 10</p>
+  <h2 class="section-heading">Framework Best Practices — Angular 21 + Django 5.2</h2>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">FW-001</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">All HTTP calls use <code>firstValueFrom()</code> instead of <code>httpResource()</code> / <code>resource()</code></span>
+      <span class="finding-location">auth.service.ts:39, 47, 58</span>
+    </div>
+    <div class="finding-body">
+      <p>The project's own <code>CLAUDE.md</code> explicitly lists <code>firstValueFrom()</code> as a prohibited pattern. <code>httpResource()</code> is the mandated Angular 21 approach for data fetching. Zero usage of either <code>httpResource()</code> or <code>resource()</code> anywhere in the codebase.</p>
+<pre>// auth.service.ts — three violations
+await firstValueFrom(this.http.post&lt;AuthTokens&gt;('/api/auth/login/', ...));
+await firstValueFrom(this.http.get&lt;UserProfile&gt;('/api/auth/me/'));
+await firstValueFrom(this.http.post&lt;{ access: string }&gt;('/api/auth/token/refresh/', ...));</pre>
+      <p><strong>Remediation:</strong> Migrate <code>loadProfile()</code> to <code>httpResource()</code>. For login/refresh mutations, use <code>resource()</code> with a request signal or document the exception explicitly.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="high">
+    <div class="finding-head">
+      <span class="finding-id">FW-002</span>
+      <span class="badge badge-high">High</span>
+      <span class="finding-name">Production uses HS256 SimpleJWT — Cognito integration incomplete</span>
+    </div>
+    <div class="finding-body"><p>See SEC-004 / OPS-002. Code explicitly states it "will fail in prod if used." Pre-launch blocker.</p></div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FW-003</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name"><code>TokenRefreshView</code> has no throttle — brute-forceable at 100/hour</span>
+      <span class="finding-location">config/urls.py:7</span>
+    </div>
+    <div class="finding-body">
+      <p>The <code>TokenRefreshView</code> is registered directly from <code>simplejwt</code> with no custom throttle class. Global <code>AnonRateThrottle</code> applies at 100/hour — far too permissive for a refresh token endpoint.</p>
+      <p><strong>Remediation:</strong> Subclass <code>TokenRefreshView</code> and add a tight <code>AnonRateThrottle</code> scope (e.g., <code>'token_refresh': '20/hour'</code>).</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FW-004</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name">No custom <code>ErrorHandler</code> — bootstrap errors swallowed to <code>console.error</code></span>
+      <span class="finding-location">main.ts:5-6</span>
+    </div>
+    <div class="finding-body">
+      <p><code>bootstrapApplication(...).catch((err) =&gt; console.error(err))</code>. <code>provideBrowserGlobalErrorListeners()</code> is present but no custom <code>ErrorHandler</code> is registered. Unhandled runtime errors are not reported to any monitoring service.</p>
+    </div>
+  </div>
+
+  <div class="finding" data-severity="medium">
+    <div class="finding-head">
+      <span class="finding-id">FW-005</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="finding-name"><code>MeView</code> throttle is implicit (global default only)</span>
+      <span class="finding-location">apps/users/views.py:31</span>
+    </div>
+    <div class="finding-body">
+      <p><code>LoginView</code> explicitly declares <code>throttle_classes = [LoginThrottle]</code> — good pattern. <code>MeView</code> has no <code>throttle_classes</code> and relies only on global 1000/hour default. Explicit throttling makes the contract visible and auditable.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:0.85rem;color:var(--ink-light);margin:1.5rem 0 0.75rem">Strengths</h3>
+  <div class="strengths-grid">
+    <div class="strength">All components standalone — zero NgModule usage</div>
+    <div class="strength">All use <code>ChangeDetectionStrategy.OnPush</code></div>
+    <div class="strength">All DI via <code>inject()</code> — no constructor injection</div>
+    <div class="strength">All templates use <code>@if</code>/<code>@switch</code> — no legacy structural directives</div>
+    <div class="strength">All routes use <code>loadComponent()</code> — lazy loading correct</div>
+    <div class="strength">Auth guard uses <code>CanActivateFn</code> — functional, not class-based</div>
+    <div class="strength">HTTP interceptors use <code>HttpInterceptorFn</code> — functional pattern</div>
+    <div class="strength">Custom <code>AbstractBaseUser</code> + <code>UserManager</code> — correct Django pattern</div>
+    <div class="strength">DRF: <code>APIView</code> appropriate for simple auth endpoints</div>
+    <div class="strength">PrimeNG Aura theme correctly configured via <code>providePrimeNG()</code></div>
+    <div class="strength">Bundle size budgets configured in <code>angular.json</code></div>
+  </div>
+</section>
+
+<!-- ═══ PAGES TESTED ═══ -->
+<section class="audit-section">
+  <p class="section-title">Appendix</p>
+  <h2 class="section-heading">Pages Tested</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Page / Endpoint</th><th>Status</th><th>A11y Issues</th><th>Auth Required</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>/ → /login (redirect)</td><td><span class="badge badge-pass">302</span></td><td>6</td><td>No</td><td>Login form tested with valid/invalid credentials</td></tr>
+        <tr><td>/login</td><td><span class="badge badge-pass">200</span></td><td>6</td><td>No</td><td>Rate limit triggered during testing</td></tr>
+        <tr><td>/dashboard</td><td><span class="badge badge-pass">200</span></td><td>4</td><td>Yes</td><td>Guard bypass confirmed (FUNC-001)</td></tr>
+        <tr><td>/404-anything</td><td><span class="badge badge-pass">200</span></td><td>1</td><td>No</td><td>NotFound component renders correctly</td></tr>
+        <tr><td>GET /api/health/</td><td><span class="badge badge-pass">200</span></td><td>—</td><td>No</td><td>Shallow — no DB probe</td></tr>
+        <tr><td>POST /api/auth/login/</td><td><span class="badge badge-pass">200</span></td><td>—</td><td>No</td><td>Throttled after ~6 attempts</td></tr>
+        <tr><td>GET /api/auth/me/</td><td><span class="badge badge-pass">200</span></td><td>—</td><td>Yes</td><td>Returns is_staff — consider removing</td></tr>
+        <tr><td>POST /api/auth/token/refresh/</td><td><span class="badge badge-pass">200</span></td><td>—</td><td>No</td><td>No custom throttle</td></tr>
+        <tr><td>GET /robots.txt</td><td><span class="badge badge-critical">404</span></td><td>—</td><td>No</td><td>Missing — SEO-002</td></tr>
+        <tr><td>GET /sitemap.xml</td><td><span class="badge badge-critical">404</span></td><td>—</td><td>No</td><td>Missing</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ ALL FINDINGS SUMMARY ═══ -->
+<section class="audit-section">
+  <p class="section-title">Reference</p>
+  <h2 class="section-heading">All High &amp; Medium Findings</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Severity</th><th>Category</th><th>Finding</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>SEC-001</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>JWT tokens in localStorage</td></tr>
+        <tr><td><code>SEC-002</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>No Content-Security-Policy</td></tr>
+        <tr><td><code>SEC-003</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>No JWT logout / server-side revocation</td></tr>
+        <tr><td><code>SEC-004</code></td><td><span class="badge badge-high">High</span></td><td>Security</td><td>Production auth: Cognito not implemented</td></tr>
+        <tr><td><code>SEC-005</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>ALLOWED_HOSTS defaults to wildcard *</td></tr>
+        <tr><td><code>SEC-006</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>Hardcoded django-insecure SECRET_KEY in repo</td></tr>
+        <tr><td><code>SEC-007</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>Login brute-force rate too permissive</td></tr>
+        <tr><td><code>SEC-008</code></td><td><span class="badge badge-medium">Medium</span></td><td>Security</td><td>Frontend serves zero security headers</td></tr>
+        <tr><td><code>A11Y-001</code></td><td><span class="badge badge-high">High</span></td><td>Accessibility</td><td>Icon-only logout button has no accessible name</td></tr>
+        <tr><td><code>A11Y-002</code></td><td><span class="badge badge-high">High</span></td><td>Accessibility</td><td>Form errors not associated with inputs</td></tr>
+        <tr><td><code>A11Y-003</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>No skip navigation mechanism</td></tr>
+        <tr><td><code>A11Y-004</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>Route changes not announced to screen readers</td></tr>
+        <tr><td><code>A11Y-005</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>Login error has no live region</td></tr>
+        <tr><td><code>A11Y-006</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>No :focus-visible styles</td></tr>
+        <tr><td><code>A11Y-007</code></td><td><span class="badge badge-medium">Medium</span></td><td>Accessibility</td><td>Links lack non-color differentiator</td></tr>
+        <tr><td><code>PERF-001</code></td><td><span class="badge badge-high">High</span></td><td>Performance</td><td>No HTTP compression</td></tr>
+        <tr><td><code>PERF-002</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>No database connection pooling</td></tr>
+        <tr><td><code>PERF-003</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>No caching layer</td></tr>
+        <tr><td><code>PERF-004</code></td><td><span class="badge badge-medium">Medium</span></td><td>Performance</td><td>PrimeNG Aura loaded eagerly (124 KB)</td></tr>
+        <tr><td><code>SEO-001</code></td><td><span class="badge badge-high">High</span></td><td>SEO</td><td>Pure CSR — crawler sees empty app-root</td></tr>
+        <tr><td><code>SEO-002</code></td><td><span class="badge badge-high">High</span></td><td>SEO</td><td>No robots.txt</td></tr>
+        <tr><td><code>SEO-003</code></td><td><span class="badge badge-medium">Medium</span></td><td>SEO</td><td>Missing meta description</td></tr>
+        <tr><td><code>SEO-004</code></td><td><span class="badge badge-medium">Medium</span></td><td>SEO</td><td>No Open Graph tags</td></tr>
+        <tr><td><code>SEO-005</code></td><td><span class="badge badge-medium">Medium</span></td><td>SEO</td><td>Generic placeholder title</td></tr>
+        <tr><td><code>CQ-001</code></td><td><span class="badge badge-high">High</span></td><td>Code Quality</td><td>JWT tokens in localStorage</td></tr>
+        <tr><td><code>CQ-002</code></td><td><span class="badge badge-high">High</span></td><td>Code Quality</td><td>No token refresh on 401 in interceptor</td></tr>
+        <tr><td><code>CQ-003</code></td><td><span class="badge badge-high">High</span></td><td>Code Quality</td><td>DEFAULT_AUTHENTICATION_CLASSES missing from base.py</td></tr>
+        <tr><td><code>CQ-004</code></td><td><span class="badge badge-high">High</span></td><td>Code Quality</td><td>Cognito auth is TODO in production.py</td></tr>
+        <tr><td><code>CQ-005</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>isAuthenticated checks token presence only</td></tr>
+        <tr><td><code>CQ-006</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>ROTATE_REFRESH_TOKENS: False</td></tr>
+        <tr><td><code>CQ-007</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>USER_ID_FIELD mismatch between local/production</td></tr>
+        <tr><td><code>CQ-008</code></td><td><span class="badge badge-medium">Medium</span></td><td>Code Quality</td><td>LoginSerializer does not check user.is_active</td></tr>
+        <tr><td><code>FUNC-001</code></td><td><span class="badge badge-high">High</span></td><td>Functional</td><td>Auth guard bypassed by any localStorage string</td></tr>
+        <tr><td><code>FUNC-002</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functional</td><td>No noAuthGuard on /login route</td></tr>
+        <tr><td><code>FUNC-003</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functional</td><td>Profile not loaded on session restore</td></tr>
+        <tr><td><code>FUNC-004</code></td><td><span class="badge badge-medium">Medium</span></td><td>Functional</td><td>Raw throttle error shown to users</td></tr>
+        <tr><td><code>DEP-001</code></td><td><span class="badge badge-medium">Medium</span></td><td>Dependencies</td><td>@primeng/themes deprecated</td></tr>
+        <tr><td><code>COMP-001</code></td><td><span class="badge badge-high">High</span></td><td>Compliance</td><td>No privacy policy or ToS pages</td></tr>
+        <tr><td><code>COMP-002</code></td><td><span class="badge badge-high">High</span></td><td>Compliance</td><td>JWT in localStorage (GDPR Art. 32)</td></tr>
+        <tr><td><code>COMP-003</code></td><td><span class="badge badge-medium">Medium</span></td><td>Compliance</td><td>No DSAR endpoints (right to erasure/portability)</td></tr>
+        <tr><td><code>COMP-004</code></td><td><span class="badge badge-medium">Medium</span></td><td>Compliance</td><td>No cookie consent mechanism</td></tr>
+        <tr><td><code>COMP-005</code></td><td><span class="badge badge-medium">Medium</span></td><td>Compliance</td><td>No data retention policy</td></tr>
+        <tr><td><code>OPS-001</code></td><td><span class="badge badge-high">High</span></td><td>Operations</td><td>No CI/CD pipeline</td></tr>
+        <tr><td><code>OPS-002</code></td><td><span class="badge badge-high">High</span></td><td>Operations</td><td>Cognito auth not implemented</td></tr>
+        <tr><td><code>OPS-003</code></td><td><span class="badge badge-medium">Medium</span></td><td>Operations</td><td>Health check does not probe database</td></tr>
+        <tr><td><code>OPS-004</code></td><td><span class="badge badge-medium">Medium</span></td><td>Operations</td><td>No error tracking / structured logging</td></tr>
+        <tr><td><code>OPS-005</code></td><td><span class="badge badge-medium">Medium</span></td><td>Operations</td><td>No PostgreSQL backup strategy</td></tr>
+        <tr><td><code>FW-001</code></td><td><span class="badge badge-high">High</span></td><td>Framework</td><td>firstValueFrom() used instead of httpResource()</td></tr>
+        <tr><td><code>FW-002</code></td><td><span class="badge badge-high">High</span></td><td>Framework</td><td>Production auth: Cognito not implemented</td></tr>
+        <tr><td><code>FW-003</code></td><td><span class="badge badge-medium">Medium</span></td><td>Framework</td><td>TokenRefreshView has no throttle</td></tr>
+        <tr><td><code>FW-004</code></td><td><span class="badge badge-medium">Medium</span></td><td>Framework</td><td>No custom ErrorHandler</td></tr>
+        <tr><td><code>FW-005</code></td><td><span class="badge badge-medium">Medium</span></td><td>Framework</td><td>MeView throttle implicit only</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ VERDICT ═══ -->
+<section class="audit-section">
+  <p class="section-title">Verdict</p>
+  <h2 class="section-heading">Launch Readiness</h2>
+  <div class="verdict verdict-not-ready">
+    <p class="verdict-label">Launch Verdict</p>
+    <p class="verdict-value">NOT READY</p>
+    <p class="verdict-note">Overall score 5.4 / 10. Zero Critical findings, but 20 unresolved High findings across Security, Accessibility, Code Quality, Functional, Compliance, and Operations. Five findings are pre-launch blockers: Cognito auth unimplemented, JWT logout missing, auth guard bypassable, no privacy/ToS pages, no CI/CD pipeline.</p>
+  </div>
+</section>
+
+<!-- ═══ ACTION PLAN ═══ -->
+<section class="audit-section">
+  <p class="section-title">Recommendations</p>
+  <h2 class="section-heading">Priority Action Plan</h2>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-critical">Blockers</span> Must resolve before any production deployment</div>
+    <ol>
+      <li><strong>Implement Cognito JWT validation</strong> in <code>production.py</code> — the code explicitly says it "will fail in prod if used" <span class="action-meta"><span class="badge badge-high">SEC-004 / OPS-002 / FW-002</span></span></li>
+      <li><strong>Add server-side JWT logout</strong> — install <code>simplejwt.token_blacklist</code>, add <code>/api/auth/logout/</code>, enable <code>ROTATE_REFRESH_TOKENS: True</code> <span class="action-meta"><span class="badge badge-high">SEC-003</span></span></li>
+      <li><strong>Fix auth guard bypass</strong> — remove <code>if (auth.isAuthenticated()) return true</code> fast-path; always call <code>await auth.checkAuth()</code> <span class="action-meta"><span class="badge badge-high">FUNC-001</span></span></li>
+      <li><strong>Move JWT tokens out of localStorage</strong> — access token to memory signal, refresh token to HttpOnly cookie <span class="action-meta"><span class="badge badge-high">SEC-001 / CQ-001</span></span></li>
+      <li><strong>Create CI/CD pipeline</strong> — GitHub Actions with <code>pytest</code>, <code>ng build</code>, Docker build jobs <span class="action-meta"><span class="badge badge-high">OPS-001</span></span></li>
+      <li><strong>Add privacy policy and ToS pages</strong> — routes <code>/privacy</code> and <code>/terms</code> with legal content <span class="action-meta"><span class="badge badge-high">COMP-001</span></span></li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-high">Short-term</span> This sprint</div>
+    <ol>
+      <li><strong>Add CSP headers</strong> to both API (<code>django-csp</code>) and SPA (CloudFront custom headers) <span class="action-meta"><span class="badge badge-high">SEC-002</span></span></li>
+      <li><strong>Fix error interceptor</strong> — attempt <code>auth.refreshToken()</code> on 401 before calling <code>auth.logout()</code> <span class="action-meta"><span class="badge badge-high">CQ-002 / SEC-009</span></span></li>
+      <li><strong>Fix profile not loading on session restore</strong> — remove guard fast-path or add <code>APP_INITIALIZER</code> <span class="action-meta"><span class="badge badge-medium">FUNC-003</span></span></li>
+      <li><strong>Add <code>aria-label="Log out"</code></strong> to icon-only logout button <span class="action-meta"><span class="badge badge-high">A11Y-001</span></span></li>
+      <li><strong>Wire form errors to inputs</strong> via <code>aria-describedby</code> and <code>aria-invalid</code> <span class="action-meta"><span class="badge badge-high">A11Y-002</span></span></li>
+      <li><strong>Add GZipMiddleware</strong> to Django and enable brotli at CloudFront <span class="action-meta"><span class="badge badge-high">PERF-001</span></span></li>
+      <li><strong>Add <code>CONN_MAX_AGE: 60</code></strong> to database config <span class="action-meta"><span class="badge badge-medium">PERF-002</span></span></li>
+      <li><strong>Add <code>DEFAULT_AUTHENTICATION_CLASSES</code></strong> to <code>base.py</code> <span class="action-meta"><span class="badge badge-high">CQ-003</span></span></li>
+      <li><strong>Deep health check</strong> — add DB probe to <code>/api/health/</code>, return 503 on failure <span class="action-meta"><span class="badge badge-medium">OPS-003</span></span></li>
+      <li><strong>Add Sentry + structured logging</strong> to production settings <span class="action-meta"><span class="badge badge-medium">OPS-004</span></span></li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-medium">Medium-term</span> Next sprint</div>
+    <ol>
+      <li><strong>Migrate <code>firstValueFrom()</code> to <code>httpResource()</code></strong> in <code>AuthService</code> <span class="action-meta"><span class="badge badge-high">FW-001</span></span></li>
+      <li><strong>Add skip navigation link</strong> + <code>aria-label</code> on nav + <code>:focus-visible</code> styles <span class="action-meta"><span class="badge badge-medium">A11Y-003 / A11Y-006 / A11Y-008</span></span></li>
+      <li><strong>Route change announcements</strong> via <code>LiveAnnouncer</code> in <code>app.ts</code> <span class="action-meta"><span class="badge badge-medium">A11Y-004</span></span></li>
+      <li><strong>Create <code>robots.txt</code></strong> disallowing <code>/dashboard</code> <span class="action-meta"><span class="badge badge-high">SEO-002</span></span></li>
+      <li><strong>Add meta description + OG tags</strong> to <code>index.html</code> <span class="action-meta"><span class="badge badge-medium">SEO-003 / SEO-004</span></span></li>
+      <li><strong>Add <code>noAuthGuard</code></strong> on <code>/login</code> route <span class="action-meta"><span class="badge badge-medium">FUNC-002</span></span></li>
+      <li><strong>Throttle <code>TokenRefreshView</code></strong> with a tight custom scope <span class="action-meta"><span class="badge badge-medium">FW-003</span></span></li>
+      <li><strong>Migrate <code>@primeng/themes</code></strong> to <code>@primeuix/themes</code> <span class="action-meta"><span class="badge badge-medium">DEP-001</span></span></li>
+      <li><strong>Implement DSAR endpoints</strong> (right to erasure + data export) <span class="action-meta"><span class="badge badge-medium">COMP-003</span></span></li>
+      <li><strong>Add Redis caching</strong> for throttle backend and <code>/api/auth/me/</code> <span class="action-meta"><span class="badge badge-medium">PERF-003</span></span></li>
+    </ol>
+  </div>
+
+  <div class="action-tier">
+    <div class="action-tier-label"><span class="badge badge-low">Backlog</span> Low priority</div>
+    <ol>
+      <li>Fix <code>useradd -M</code> → <code>-m</code> in Dockerfile so <code>uv run pytest</code> works in container</li>
+      <li>Restrict PostgreSQL port to <code>127.0.0.1</code> in docker-compose</li>
+      <li>Remove <code>is_staff</code> from <code>/api/auth/me/</code> response</li>
+      <li>Change admin URL from <code>/admin/</code> to a non-predictable path</li>
+      <li>Add <code>uv tool.uv.dev-dependencies</code> → PEP 735 <code>[dependency-groups]</code> migration</li>
+      <li>Add <code>role="alert"</code> wrapper around login API error message</li>
+      <li>Translate <code>&lt;p&gt;/&lt;strong&gt;</code> user data in dashboard to <code>&lt;dl&gt;/&lt;dt&gt;/&lt;dd&gt;</code></li>
+      <li>Add link underlines or non-color differentiators in <code>styles.scss</code></li>
+      <li>Replace sequential-pattern SECRET_KEY in <code>.env</code> with Django-generated random key</li>
+      <li>Document RDS backup strategy and restore procedure in <code>DOCKER.md</code></li>
+    </ol>
+  </div>
+</section>
+
+<div class="methodology">
+  <p class="methodology-title">Scoring Methodology</p>
+  <p>Score = 10 &minus; (Critical &times; 2.0 + High &times; 1.0 + Medium &times; 0.4 + Low &times; 0.1), clamped to [0, 10]. Overall weighted average: Security 25%, Accessibility 20%, Performance 15%, Code Quality 15%, Functionality 15%, SEO 10%. Verdict: READY (&ge;8.0, 0 Critical, 0 unresolved High), READY WITH RESERVES (6.0&ndash;7.9, 0 Critical), NOT READY (&lt;6.0 or Critical exists). Audit performed with Python/httpx for HTTP checks, BeautifulSoup4 for HTML analysis, agent-browser CLI for browser functional testing, and direct source code analysis via Grep/Read.</p>
+</div>
+
+<footer class="report-footer">
+  <div>
+    <strong>kodexArg/QA</strong> &mdash; Full Audit Report<br>
+    Generated 2026-03-13 with Claude Code QA Agent (claude-sonnet-4-6)
+  </div>
+  <div style="text-align:right">
+    Tools: httpx &middot; BeautifulSoup4 &middot; agent-browser &middot; source analysis<br>
+    Target: <a href="https://github.com/kodexArg/kdx-ng-template">kodexArg/kdx-ng-template</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
